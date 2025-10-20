@@ -254,8 +254,91 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
           </div>
 
           {/* Mini Calendar */}
-          <div className="lg:col-span-2">
-            <MiniCalendar purchases={filteredPurchases} />
+          <MiniCalendar purchases={filteredPurchases} />
+
+          {/* Bar Chart - Numero Acquisti per Piattaforma */}
+          <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <ShoppingBag className="text-orange-600" size={24} />
+              Acquisti per Piattaforma
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={platformData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="name"
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                  allowDecimals={false}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
+                  dataKey="count"
+                  fill="#8b5cf6"
+                  radius={[8, 8, 0, 0]}
+                  animationDuration={1000}
+                  name="Numero Acquisti"
+                >
+                  {platformData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Top 5 Acquisti */}
+          <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <TrendingUp className="text-green-600" size={24} />
+              Top 5 Acquisti
+            </h3>
+            <div className="space-y-3">
+              {filteredPurchases
+                .sort((a, b) => b.price - a.price)
+                .slice(0, 5)
+                .map((purchase, index) => {
+                  const maxPrice = Math.max(...filteredPurchases.map(p => p.price));
+                  const percentage = (purchase.price / maxPrice) * 100;
+                  return (
+                    <div key={purchase.id} className="relative">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl font-bold text-gray-400">
+                            {index + 1}
+                          </span>
+                          <span className="text-sm font-semibold text-gray-800 truncate max-w-[200px]">
+                            {purchase.name}
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-gray-900">
+                          €{purchase.price.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-1000`}
+                          style={{
+                            width: `${percentage}%`,
+                            background: COLORS[purchase.platform] || '#6366f1'
+                          }}
+                        />
+                      </div>
+                      <span className={`text-xs font-medium mt-1 inline-block px-2 py-0.5 rounded ${
+                        purchase.platform === 'Amazon' ? 'bg-orange-100 text-orange-800' :
+                        purchase.platform === 'AliExpress' ? 'bg-red-100 text-red-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {purchase.platform}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
       )}

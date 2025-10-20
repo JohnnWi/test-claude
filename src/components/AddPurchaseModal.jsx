@@ -69,13 +69,26 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
 
     setIsLoadingPreview(true);
     try {
-      // Prova a usare microlink.io per ottenere preview
-      const response = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(formData.link)}`);
+      // Prova a usare microlink.io per ottenere preview con screenshot
+      const response = await fetch(
+        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}&screenshot=true&meta=false&embed=screenshot.url`
+      );
       const data = await response.json();
 
-      if (data.status === 'success' && data.data.image) {
-        setFormData(prev => ({ ...prev, imageUrl: data.data.image.url }));
-        showToast('Immagine caricata!', 'success');
+      console.log('Microlink response:', data);
+
+      if (data.status === 'success') {
+        // Prova prima screenshot, poi image, poi logo
+        const imageUrl = data.data?.screenshot?.url ||
+                        data.data?.image?.url ||
+                        data.data?.logo?.url;
+
+        if (imageUrl) {
+          setFormData(prev => ({ ...prev, imageUrl }));
+          showToast('Immagine caricata!', 'success');
+        } else {
+          showToast('Nessuna immagine trovata. Inseriscila manualmente copiando l\'URL dell\'immagine del prodotto.', 'info');
+        }
       } else {
         showToast('Impossibile caricare l\'immagine automaticamente. Inseriscila manualmente.', 'info');
       }
@@ -216,9 +229,10 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
                   src={formData.imageUrl}
                   alt="Preview"
                   className="w-32 h-32 object-cover rounded-lg mx-auto"
+                  crossOrigin="anonymous"
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    showToast('Immagine non valida', 'error');
+                    showToast('Immagine non valida o non accessibile. Prova a incollare l\'URL direttamente dall\'immagine del prodotto.', 'error');
                   }}
                 />
               </div>

@@ -51,15 +51,13 @@ export default function MiniCalendar({ purchases }) {
 
   return (
     <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <CalendarIcon className="text-blue-600" size={24} />
-          Calendario Acquisti
-        </h3>
-      </div>
+      <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <CalendarIcon className="text-blue-600" size={24} />
+        Calendario
+      </h3>
 
       {/* Header con navigazione mese */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <button
           onClick={handlePreviousMonth}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -82,17 +80,17 @@ export default function MiniCalendar({ purchases }) {
       </div>
 
       {/* Legenda piattaforme */}
-      <div className="flex gap-3 mb-4 flex-wrap justify-center">
+      <div className="flex gap-2 mb-3 flex-wrap justify-center">
         {Object.entries(PLATFORM_COLORS).map(([platform, colors]) => (
           <div key={platform} className="flex items-center gap-1">
-            <div className={`w-3 h-3 rounded-full ${colors.bg}`}></div>
-            <span className="text-xs text-gray-600">{platform}</span>
+            <div className={`w-2 h-2 rounded-full ${colors.bg}`}></div>
+            <span className="text-[10px] text-gray-600">{platform}</span>
           </div>
         ))}
       </div>
 
       {/* Giorni della settimana */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-1 mb-1">
         {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((day, index) => (
           <div key={index} className="text-center text-xs font-semibold text-gray-500 py-1">
             {day}
@@ -170,48 +168,8 @@ export default function MiniCalendar({ purchases }) {
         })}
       </div>
 
-      {/* Dettagli giorno selezionato */}
-      {selectedDay && selectedDayPurchases.length > 0 && (
-        <div className="mt-6 pt-6 border-t-2 border-gray-200 animate-fade-in">
-          <h5 className="font-bold text-gray-800 mb-3">
-            Acquisti del {format(selectedDay, 'd MMMM yyyy', { locale: it })}
-          </h5>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {selectedDayPurchases.map((purchase) => (
-              <div
-                key={purchase.id}
-                className={`p-3 rounded-lg border-2 ${
-                  PLATFORM_COLORS[purchase.platform]?.border
-                } bg-gray-50 hover:bg-gray-100 transition-colors`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 text-sm truncate">
-                      {purchase.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                        PLATFORM_COLORS[purchase.platform]?.bg
-                      } text-white`}>
-                        {purchase.platform}
-                      </span>
-                      <span className="text-sm font-bold text-gray-800">
-                        €{purchase.price.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 text-sm text-gray-600 font-medium">
-            Totale: €{selectedDayPurchases.reduce((sum, p) => sum + p.price, 0).toFixed(2)}
-          </div>
-        </div>
-      )}
-
       {/* Statistiche del mese corrente */}
-      <div className="mt-6 pt-6 border-t-2 border-gray-200">
+      <div className="mt-4 pt-4 border-t-2 border-gray-200">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-3">
             <p className="text-xs text-blue-700 font-medium mb-1">Acquisti</p>

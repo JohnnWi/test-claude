@@ -29,11 +29,13 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'list'
+  const [platformFilter, setPlatformFilter] = useState('all'); // 'all', 'Amazon', 'AliExpress', 'Altro'
 
   const filteredPurchases = purchases
     .filter(p =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.platform.toLowerCase().includes(searchTerm.toLowerCase())
+      (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.platform.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (platformFilter === 'all' || p.platform === platformFilter)
     )
     .sort((a, b) => {
       let comparison = 0;
@@ -68,21 +70,41 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
     Altro: 'from-purple-50 to-purple-100'
   };
 
-  return (
-    <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <Package className="text-blue-600" />
-            Lista Acquisti
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {filteredPurchases.length} {filteredPurchases.length === 1 ? 'acquisto trovato' : 'acquisti trovati'}
-          </p>
-        </div>
+  const totalSpent = filteredPurchases.reduce((sum, p) => sum + p.price, 0);
+  const avgPrice = filteredPurchases.length > 0 ? totalSpent / filteredPurchases.length : 0;
 
-        {/* View Toggle */}
-        <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+  return (
+    <div className="space-y-4">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4">
+          <p className="text-sm text-blue-700 font-medium mb-1">Totale Acquisti</p>
+          <p className="text-3xl font-bold text-blue-800">{filteredPurchases.length}</p>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4">
+          <p className="text-sm text-green-700 font-medium mb-1">Spesa Totale</p>
+          <p className="text-3xl font-bold text-green-800">€{totalSpent.toFixed(2)}</p>
+        </div>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4">
+          <p className="text-sm text-purple-700 font-medium mb-1">Spesa Media</p>
+          <p className="text-3xl font-bold text-purple-800">€{avgPrice.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Package className="text-blue-600" />
+              Lista Acquisti
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {filteredPurchases.length} {filteredPurchases.length === 1 ? 'acquisto trovato' : 'acquisti trovati'}
+            </p>
+          </div>
+
+          {/* View Toggle */}
+          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
           <button
             onClick={() => setViewMode('grid')}
             className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
@@ -119,6 +141,26 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
+        </div>
+      </div>
+
+      {/* Platform Filter */}
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-gray-700 mb-2">Filtra per Piattaforma:</p>
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'Amazon', 'AliExpress', 'Altro'].map((platform) => (
+            <button
+              key={platform}
+              onClick={() => setPlatformFilter(platform)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                platformFilter === platform
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {platform === 'all' ? 'Tutte' : platform}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -175,6 +217,13 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                     alt={purchase.name}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    crossOrigin="anonymous"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      if (e.target.src !== getProductImage({ ...purchase, imageUrl: null })) {
+                        e.target.src = getProductImage({ ...purchase, imageUrl: null });
+                      }
+                    }}
                   />
                   <div className="absolute top-2 right-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${platformColors[purchase.platform]}`}>
@@ -252,6 +301,13 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                       alt={purchase.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        if (e.target.src !== getProductImage({ ...purchase, imageUrl: null })) {
+                          e.target.src = getProductImage({ ...purchase, imageUrl: null });
+                        }
+                      }}
                     />
                   </div>
 
@@ -323,6 +379,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }
