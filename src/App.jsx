@@ -5,8 +5,9 @@ import { filterPurchasesByPeriod } from './utils/calculations';
 import AddPurchaseForm from './components/AddPurchaseForm';
 import Dashboard from './components/Dashboard';
 import PurchasesList from './components/PurchasesList';
+import Settings from './components/Settings';
 import { ToastContainer } from './components/Toast';
-import { LayoutDashboard, List, Download, Upload, Trash2 } from 'lucide-react';
+import { LayoutDashboard, List, Download, Upload, Trash2, Settings as SettingsIcon } from 'lucide-react';
 
 function App() {
   const [purchases, setPurchases] = useLocalStorage('purchases', []);
@@ -171,6 +172,17 @@ function App() {
               <List size={20} />
               Lista Acquisti
             </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex-1 px-6 py-4 font-medium transition-colors flex items-center justify-center gap-2 ${
+                activeTab === 'settings'
+                  ? 'border-b-2 border-blue-600 text-blue-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <SettingsIcon size={20} />
+              Impostazioni
+            </button>
           </div>
         </div>
 
@@ -183,6 +195,15 @@ function App() {
             purchases={filteredPurchases}
             onDeletePurchase={handleDeletePurchase}
             showToast={toast.addToast}
+          />
+        )}
+        {activeTab === 'settings' && (
+          <Settings
+            purchases={purchases}
+            setPurchases={setPurchases}
+            showToast={toast.addToast}
+            exportData={exportData}
+            importData={importData}
           />
         )}
       </main>
