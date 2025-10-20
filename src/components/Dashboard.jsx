@@ -1,18 +1,17 @@
+import { useState } from 'react';
 import {
-  BarChart, Bar, LineChart, Line, AreaChart, Area,
+  BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, RadialBarChart, RadialBar
+  PieChart, Pie, Cell
 } from 'recharts';
-import { TrendingUp, ShoppingBag, Euro, Calendar } from 'lucide-react';
-import { calculateTotal, calculateByPlatform, getMonthlyData } from '../utils/calculations';
+import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
+import { calculateTotal, calculateByPlatform, getMonthlyData, filterPurchasesByPeriod } from '../utils/calculations';
 
 const COLORS = {
   Amazon: '#FF9900',
   AliExpress: '#E62E04',
   Altro: '#6366f1'
 };
-
-const CHART_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
 // Custom Tooltip elegante
 const CustomTooltip = ({ active, payload, label }) => {
@@ -52,10 +51,14 @@ const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, n
   );
 };
 
-export default function Dashboard({ purchases, period }) {
-  const total = calculateTotal(purchases);
-  const byPlatform = calculateByPlatform(purchases);
-  const monthlyData = getMonthlyData(purchases);
+export default function Dashboard({ purchases, onOpenAddModal }) {
+  const [period, setPeriod] = useState('all');
+
+  const filteredPurchases = period === 'all' ? purchases : filterPurchasesByPeriod(purchases, period);
+
+  const total = calculateTotal(filteredPurchases);
+  const byPlatform = calculateByPlatform(filteredPurchases);
+  const monthlyData = getMonthlyData(filteredPurchases);
 
   const platformData = Object.entries(byPlatform).map(([platform, data]) => ({
     name: platform,
@@ -73,6 +76,44 @@ export default function Dashboard({ purchases, period }) {
 
   return (
     <div className="space-y-6">
+      {/* Header with Period Filter and Quick Add */}
+      <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="text-blue-600" size={20} />
+            <span className="text-gray-700 font-semibold">Periodo:</span>
+            <div className="flex gap-2">
+              {[
+                { value: 'all', label: 'Tutto' },
+                { value: 'year', label: 'Anno' },
+                { value: 'month', label: 'Mese' },
+                { value: 'week', label: 'Settimana' }
+              ].map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => setPeriod(p.value)}
+                  className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
+                    period === p.value
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenAddModal}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 font-semibold shadow-lg"
+          >
+            <Plus size={20} />
+            Aggiungi Acquisto
+          </button>
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
@@ -92,7 +133,7 @@ export default function Dashboard({ purchases, period }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm font-medium">Acquisti</p>
-              <p className="text-3xl font-bold mt-1">{purchases.length}</p>
+              <p className="text-3xl font-bold mt-1">{filteredPurchases.length}</p>
               <p className="text-green-100 text-xs mt-1">{periodLabels[period]}</p>
             </div>
             <div className="bg-white/20 p-3 rounded-full">
@@ -106,7 +147,7 @@ export default function Dashboard({ purchases, period }) {
             <div>
               <p className="text-purple-100 text-sm font-medium">Media Acquisto</p>
               <p className="text-3xl font-bold mt-1">
-                €{purchases.length > 0 ? (total / purchases.length).toFixed(2) : '0.00'}
+                €{filteredPurchases.length > 0 ? (total / filteredPurchases.length).toFixed(2) : '0.00'}
               </p>
               <p className="text-purple-100 text-xs mt-1">Per ordine</p>
             </div>
@@ -130,162 +171,91 @@ export default function Dashboard({ purchases, period }) {
         </div>
       </div>
 
-      {/* Charts */}
-      {purchases.length > 0 && (
-        <>
-          {/* Trend temporale con Line + Area Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <TrendingUp className="text-blue-600" size={24} />
-                Trend Spese Mensili
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={monthlyData}>
-                  <defs>
-                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="total"
-                    stroke="#3b82f6"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorTotal)"
-                    name="Spesa"
-                    animationDuration={1000}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <ShoppingBag className="text-purple-600" size={24} />
-                Confronto Mensile
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
-                  <defs>
-                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1}/>
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.8}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar
-                    dataKey="total"
-                    fill="url(#barGradient)"
-                    name="Spesa"
-                    radius={[8, 8, 0, 0]}
-                    animationDuration={1000}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+      {/* Charts - Simplified to most useful ones */}
+      {filteredPurchases.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Trend temporale */}
+          <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <TrendingUp className="text-blue-600" size={24} />
+              Andamento Spese
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={monthlyData}>
+                <defs>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="month"
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorTotal)"
+                  name="Spesa"
+                  animationDuration={1000}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* Pie Chart + Radial Bar Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Distribuzione Spese</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={platformData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={CustomPieLabel}
-                    outerRadius={100}
-                    innerRadius={60}
-                    fill="#8884d8"
-                    dataKey="value"
-                    animationDuration={1000}
-                  >
-                    {platformData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.fill}
-                        stroke="#fff"
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    formatter={(value, entry) => `${value} (€${entry.payload.value})`}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Numero Acquisti per Piattaforma</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <RadialBarChart
+          {/* Pie Chart */}
+          <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <ShoppingBag className="text-purple-600" size={24} />
+              Distribuzione per Piattaforma
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={platformData}
                   cx="50%"
                   cy="50%"
-                  innerRadius="10%"
-                  outerRadius="90%"
-                  barSize={40}
-                  data={platformData.map((p, i) => ({
-                    ...p,
-                    value: p.count,
-                    fill: CHART_COLORS[i % CHART_COLORS.length]
-                  }))}
+                  labelLine={false}
+                  label={CustomPieLabel}
+                  outerRadius={100}
+                  innerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                  animationDuration={1000}
                 >
-                  <RadialBar
-                    minAngle={15}
-                    label={{ position: 'insideStart', fill: '#fff', fontSize: 14, fontWeight: 'bold' }}
-                    background
-                    clockWise
-                    dataKey="value"
-                    animationDuration={1000}
-                  />
-                  <Legend
-                    iconSize={10}
-                    layout="vertical"
-                    verticalAlign="middle"
-                    align="right"
-                    formatter={(value, entry) => `${value} (${entry.payload.value})`}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                </RadialBarChart>
-              </ResponsiveContainer>
-            </div>
+                  {platformData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.fill}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  formatter={(value, entry) => `${value} (€${entry.payload.value})`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-        </>
+        </div>
       )}
 
       {/* Additional Stats */}
-      {purchases.length > 0 && (
+      {filteredPurchases.length > 0 && (
         <div className="bg-gradient-to-r from-green-50 to-red-50 rounded-xl shadow-xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-800 mb-4">Statistiche Aggiuntive</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,10 +265,10 @@ export default function Dashboard({ purchases, period }) {
                 Acquisto più Economico
               </p>
               <p className="text-3xl font-bold text-green-800 my-2">
-                €{Math.min(...purchases.map(p => p.price)).toFixed(2)}
+                €{Math.min(...filteredPurchases.map(p => p.price)).toFixed(2)}
               </p>
               <p className="text-sm text-green-600 font-medium">
-                {purchases.find(p => p.price === Math.min(...purchases.map(p => p.price)))?.name}
+                {filteredPurchases.find(p => p.price === Math.min(...filteredPurchases.map(p => p.price)))?.name}
               </p>
             </div>
             <div className="bg-white border-2 border-red-300 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-transform duration-200">
@@ -307,10 +277,10 @@ export default function Dashboard({ purchases, period }) {
                 Acquisto più Costoso
               </p>
               <p className="text-3xl font-bold text-red-800 my-2">
-                €{Math.max(...purchases.map(p => p.price)).toFixed(2)}
+                €{Math.max(...filteredPurchases.map(p => p.price)).toFixed(2)}
               </p>
               <p className="text-sm text-red-600 font-medium">
-                {purchases.find(p => p.price === Math.max(...purchases.map(p => p.price)))?.name}
+                {filteredPurchases.find(p => p.price === Math.max(...filteredPurchases.map(p => p.price)))?.name}
               </p>
             </div>
           </div>
@@ -318,7 +288,7 @@ export default function Dashboard({ purchases, period }) {
       )}
 
       {/* Platform Breakdown */}
-      {purchases.length > 0 && (
+      {Object.keys(byPlatform).length > 0 && (
         <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
           <h3 className="text-xl font-bold text-gray-800 mb-4">Dettaglio per Piattaforma</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
