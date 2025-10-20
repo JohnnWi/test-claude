@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useToast } from './hooks/useToast';
-import { filterPurchasesByPeriod } from './utils/calculations';
-import AddPurchaseForm from './components/AddPurchaseForm';
+import AddPurchaseModal from './components/AddPurchaseModal';
+import QuickAddButton from './components/QuickAddButton';
 import Dashboard from './components/Dashboard';
 import PurchasesList from './components/PurchasesList';
 import Settings from './components/Settings';
@@ -11,11 +11,9 @@ import { LayoutDashboard, List, Download, Upload, Trash2, Settings as SettingsIc
 
 function App() {
   const [purchases, setPurchases] = useLocalStorage('purchases', []);
-  const [period, setPeriod] = useState('all');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const toast = useToast();
-
-  const filteredPurchases = period === 'all' ? purchases : filterPurchasesByPeriod(purchases, period);
 
   const handleAddPurchase = (purchase) => {
     setPurchases([...purchases, purchase]);
@@ -115,37 +113,19 @@ function App() {
       {/* Toast Container */}
       <ToastContainer toasts={toast.toasts} removeToast={toast.removeToast} />
 
+      {/* Add Purchase Modal */}
+      <AddPurchaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddPurchase={handleAddPurchase}
+        showToast={toast.addToast}
+      />
+
+      {/* Floating Add Button */}
+      <QuickAddButton onClick={() => setIsModalOpen(true)} />
+
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Add Purchase Form */}
-        <AddPurchaseForm onAddPurchase={handleAddPurchase} showToast={toast.addToast} />
-
-        {/* Period Filter */}
-        <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-gray-700 font-medium">Periodo:</span>
-            <div className="flex gap-2 flex-wrap">
-              {[
-                { value: 'all', label: 'Tutto' },
-                { value: 'year', label: 'Quest\'anno' },
-                { value: 'month', label: 'Questo mese' },
-                { value: 'week', label: 'Questa settimana' }
-              ].map((p) => (
-                <button
-                  key={p.value}
-                  onClick={() => setPeriod(p.value)}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    period === p.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-lg mb-6">
@@ -188,11 +168,11 @@ function App() {
 
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
-          <Dashboard purchases={filteredPurchases} period={period} />
+          <Dashboard purchases={purchases} onOpenAddModal={() => setIsModalOpen(true)} />
         )}
         {activeTab === 'list' && (
           <PurchasesList
-            purchases={filteredPurchases}
+            purchases={purchases}
             onDeletePurchase={handleDeletePurchase}
             showToast={toast.addToast}
           />
