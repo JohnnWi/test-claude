@@ -3,7 +3,7 @@ import { Search, ExternalLink, Trash2, ArrowUpDown } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-export default function PurchasesList({ purchases, onDeletePurchase }) {
+export default function PurchasesList({ purchases, onDeletePurchase, showToast }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
@@ -97,7 +97,7 @@ export default function PurchasesList({ purchases, onDeletePurchase }) {
           {filteredPurchases.map((purchase) => (
             <div
               key={purchase.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 animate-fade-in hover:scale-[1.01]"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -125,15 +125,23 @@ export default function PurchasesList({ purchases, onDeletePurchase }) {
                       Vedi prodotto <ExternalLink size={14} />
                     </a>
                   )}
+
+                  {purchase.notes && (
+                    <p className="mt-2 text-sm text-gray-600 italic border-l-2 border-gray-300 pl-3">
+                      {purchase.notes}
+                    </p>
+                  )}
                 </div>
 
                 <button
                   onClick={() => {
                     if (window.confirm('Sei sicuro di voler eliminare questo acquisto?')) {
                       onDeletePurchase(purchase.id);
+                      showToast('Acquisto eliminato', 'info');
                     }
                   }}
                   className="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-50 transition-colors"
+                  title="Elimina acquisto"
                 >
                   <Trash2 size={20} />
                 </button>

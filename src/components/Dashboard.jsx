@@ -121,6 +121,33 @@ export default function Dashboard({ purchases, period }) {
         </div>
       )}
 
+      {/* Additional Stats */}
+      {purchases.length > 0 && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Statistiche Aggiuntive</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+              <p className="text-sm text-green-700 font-medium mb-1">Acquisto più Economico</p>
+              <p className="text-2xl font-bold text-green-800">
+                €{Math.min(...purchases.map(p => p.price)).toFixed(2)}
+              </p>
+              <p className="text-sm text-green-600 mt-1">
+                {purchases.find(p => p.price === Math.min(...purchases.map(p => p.price)))?.name}
+              </p>
+            </div>
+            <div className="border border-red-200 bg-red-50 rounded-lg p-4">
+              <p className="text-sm text-red-700 font-medium mb-1">Acquisto più Costoso</p>
+              <p className="text-2xl font-bold text-red-800">
+                €{Math.max(...purchases.map(p => p.price)).toFixed(2)}
+              </p>
+              <p className="text-sm text-red-600 mt-1">
+                {purchases.find(p => p.price === Math.max(...purchases.map(p => p.price)))?.name}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Platform Breakdown */}
       {purchases.length > 0 && (
         <div className="bg-white rounded-lg shadow-lg p-6">

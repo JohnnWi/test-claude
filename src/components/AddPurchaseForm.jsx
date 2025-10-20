@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { ShoppingCart, Plus } from 'lucide-react';
 
-export default function AddPurchaseForm({ onAddPurchase }) {
+export default function AddPurchaseForm({ onAddPurchase, showToast }) {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     link: '',
     date: new Date().toISOString().split('T')[0],
-    platform: 'Amazon'
+    platform: 'Amazon',
+    notes: ''
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.price) {
-      alert('Nome e prezzo sono obbligatori!');
+      showToast('Nome e prezzo sono obbligatori!', 'error');
+      return;
+    }
+
+    if (parseFloat(formData.price) <= 0) {
+      showToast('Il prezzo deve essere maggiore di zero!', 'error');
       return;
     }
 
@@ -23,12 +29,15 @@ export default function AddPurchaseForm({ onAddPurchase }) {
       price: parseFloat(formData.price)
     });
 
+    showToast('Acquisto aggiunto con successo!', 'success');
+
     setFormData({
       name: '',
       price: '',
       link: '',
       date: new Date().toISOString().split('T')[0],
-      platform: 'Amazon'
+      platform: 'Amazon',
+      notes: ''
     });
   };
 
@@ -103,6 +112,20 @@ export default function AddPurchaseForm({ onAddPurchase }) {
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Note (opzionale)
+            </label>
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows="2"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Aggiungi note sull'acquisto..."
             />
           </div>
 

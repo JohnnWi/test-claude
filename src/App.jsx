@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { useToast } from './hooks/useToast';
 import { filterPurchasesByPeriod } from './utils/calculations';
 import AddPurchaseForm from './components/AddPurchaseForm';
 import Dashboard from './components/Dashboard';
 import PurchasesList from './components/PurchasesList';
-import { LayoutDashboard, List, Download, Upload } from 'lucide-react';
+import { ToastContainer } from './components/Toast';
+import { LayoutDashboard, List, Download, Upload, Trash2 } from 'lucide-react';
 
 function App() {
   const [purchases, setPurchases] = useLocalStorage('purchases', []);
   const [period, setPeriod] = useState('all');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const toast = useToast();
 
   const filteredPurchases = period === 'all' ? purchases : filterPurchasesByPeriod(purchases, period);
 
@@ -40,15 +43,23 @@ function App() {
           const imported = JSON.parse(e.target.result);
           if (Array.isArray(imported)) {
             setPurchases(imported);
-            alert('Dati importati con successo!');
+            toast.success(`${imported.length} acquisti importati con successo!`);
           } else {
-            alert('Formato file non valido');
+            toast.error('Formato file non valido');
           }
         } catch (error) {
-          alert('Errore durante l\'importazione: ' + error.message);
+          toast.error('Errore durante l\'importazione: ' + error.message);
         }
       };
       reader.readAsText(file);
+    }
+    event.target.value = '';
+  };
+
+  const clearAllData = () => {
+    if (window.confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa azione non può essere annullata!')) {
+      setPurchases([]);
+      toast.warning('Tutti i dati sono stati cancellati');
     }
   };
 
@@ -67,10 +78,11 @@ function App() {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={exportData}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2 text-sm"
+                disabled={purchases.length === 0}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download size={16} />
                 Esporta
@@ -85,15 +97,27 @@ function App() {
                   className="hidden"
                 />
               </label>
+              {purchases.length > 0 && (
+                <button
+                  onClick={clearAllData}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
+                >
+                  <Trash2 size={16} />
+                  Cancella Tutto
+                </button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
+      {/* Toast Container */}
+      <ToastContainer toasts={toast.toasts} removeToast={toast.removeToast} />
+
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Add Purchase Form */}
-        <AddPurchaseForm onAddPurchase={handleAddPurchase} />
+        <AddPurchaseForm onAddPurchase={handleAddPurchase} showToast={toast.addToast} />
 
         {/* Period Filter */}
         <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
@@ -158,6 +182,7 @@ function App() {
           <PurchasesList
             purchases={filteredPurchases}
             onDeletePurchase={handleDeletePurchase}
+            showToast={toast.addToast}
           />
         )}
       </main>

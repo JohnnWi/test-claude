@@ -5,15 +5,20 @@ Un'applicazione web moderna e intuitiva per monitorare i tuoi acquisti da Amazon
 ## ✨ Caratteristiche
 
 - **📊 Dashboard Interattiva**: Visualizza statistiche complete delle tue spese con grafici a barre e torta
-- **➕ Aggiungi Acquisti**: Form intuitivo per registrare i tuoi acquisti con nome, prezzo, link e data
+- **➕ Aggiungi Acquisti**: Form intuitivo per registrare i tuoi acquisti con nome, prezzo, link, note e data
 - **🔍 Ricerca e Filtri**: Cerca tra i tuoi acquisti e filtra per periodo (settimana, mese, anno)
 - **📈 Statistiche Dettagliate**:
   - Spesa totale per periodo
   - Numero di acquisti
   - Media spesa per acquisto
+  - Acquisto più costoso e più economico
   - Distribuzione per piattaforma
-  - Andamento mensile
+  - Andamento mensile con grafici
 - **💾 Esporta/Importa**: Salva e ripristina i tuoi dati in formato JSON
+- **🗑️ Gestione Dati**: Cancella tutti i dati con un click
+- **🔔 Notifiche Toast**: Feedback visivo per ogni azione
+- **✨ Animazioni Fluide**: Transizioni e animazioni per un'esperienza utente migliore
+- **📝 Note**: Aggiungi note personalizzate a ogni acquisto
 - **🎨 Interfaccia Moderna**: Design pulito e responsive con TailwindCSS
 
 ## 🚀 Come Iniziare
@@ -52,9 +57,11 @@ npm run dev
    - **Prezzo** (obbligatorio): Il prezzo in euro
    - **Link Prodotto** (opzionale): URL del prodotto su Amazon/AliExpress
    - **Data Acquisto**: Seleziona la data
+   - **Note** (opzionale): Aggiungi note personalizzate sull'acquisto
    - **Piattaforma**: Scegli tra Amazon, AliExpress o Altro
 
 2. Clicca su "Aggiungi Acquisto"
+3. Riceverai una notifica di conferma!
 
 ### Visualizzare le Statistiche
 
@@ -65,10 +72,11 @@ npm run dev
    - Questa settimana
 
 2. Nella tab **Dashboard** vedrai:
-   - Card con totali e statistiche
+   - Card con totali e statistiche (spesa totale, numero acquisti, media, piattaforme)
    - Grafico a barre dell'andamento mensile
    - Grafico a torta della distribuzione per piattaforma
-   - Dettaglio spese per ogni piattaforma
+   - Statistiche aggiuntive: acquisto più costoso e più economico
+   - Dettaglio spese per ogni piattaforma con conteggi e medie
 
 3. Nella tab **Lista Acquisti** puoi:
    - Cercare acquisti per nome o piattaforma
@@ -81,6 +89,9 @@ npm run dev
 
 - **Esporta**: Clicca sul pulsante "Esporta" nell'header per scaricare un file JSON con tutti i tuoi dati
 - **Importa**: Clicca su "Importa" e seleziona un file JSON precedentemente esportato
+- **Cancella Tutto**: Clicca sul pulsante "Cancella Tutto" (rosso) per eliminare tutti i dati
+
+⚠️ **Attenzione**: L'eliminazione di tutti i dati è irreversibile! Assicurati di esportare prima se vuoi mantenere un backup.
 
 ## 🛠️ Tecnologie Utilizzate
 
