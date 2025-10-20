@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ExternalLink, Trash2, ArrowUpDown, Package, Calendar, DollarSign, Grid3x3, List } from 'lucide-react';
+import { Search, ExternalLink, Trash2, ArrowUpDown, Package, Calendar, Euro, Grid3x3, List } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -87,7 +87,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
             onClick={() => setViewMode('grid')}
             className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
               viewMode === 'grid'
-                ? 'bg-white text-blue-600 shadow-md'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -98,7 +98,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
             onClick={() => setViewMode('list')}
             className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
               viewMode === 'list'
-                ? 'bg-white text-blue-600 shadow-md'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -128,7 +128,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
           onClick={() => toggleSort('date')}
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'date'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -139,18 +139,18 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
           onClick={() => toggleSort('price')}
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'price'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          <DollarSign size={16} />
+          <Euro size={16} />
           Prezzo {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
         </button>
         <button
           onClick={() => toggleSort('name')}
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'name'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -183,15 +183,15 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                   </div>
                 </div>
 
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2 min-h-[56px]">
+                <div className="p-4 flex flex-col h-[220px]">
+                  <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2 h-[56px]">
                     {purchase.name}
                   </h3>
 
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1 text-2xl font-bold text-gray-900">
-                      <DollarSign size={20} className="text-green-600" />
-                      €{purchase.price.toFixed(2)}
+                      <Euro size={20} className="text-green-600" />
+                      {purchase.price.toFixed(2)}
                     </div>
                     <div className="flex items-center gap-1 text-xs text-gray-600">
                       <Calendar size={14} />
@@ -199,19 +199,21 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                     </div>
                   </div>
 
-                  {purchase.notes && (
-                    <p className="text-xs text-gray-600 italic mb-3 line-clamp-2 bg-white/50 p-2 rounded border-l-2 border-gray-400">
-                      "{purchase.notes}"
-                    </p>
-                  )}
+                  <div className="flex-1 mb-3 min-h-[40px]">
+                    {purchase.notes && (
+                      <p className="text-xs text-gray-600 italic line-clamp-2 bg-white/50 p-2 rounded border-l-2 border-gray-400">
+                        "{purchase.notes}"
+                      </p>
+                    )}
+                  </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-auto">
                     {purchase.link && (
                       <a
                         href={purchase.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center gap-1 text-sm font-medium shadow-md"
                       >
                         <ExternalLink size={14} />
                         Vedi
@@ -224,7 +226,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                           showToast('Acquisto eliminato', 'info');
                         }
                       }}
-                      className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+                      className="bg-gradient-to-r from-red-600 to-red-700 text-white py-2 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center justify-center gap-1 text-sm font-medium shadow-md"
                       title="Elimina acquisto"
                     >
                       <Trash2 size={14} />
@@ -266,8 +268,8 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
 
                     <div className="flex items-center gap-4 mb-2 flex-wrap">
                       <div className="flex items-center gap-1 text-xl font-bold text-gray-900">
-                        <DollarSign size={18} className="text-green-600" />
-                        €{purchase.price.toFixed(2)}
+                        <Euro size={18} className="text-green-600" />
+                        {purchase.price.toFixed(2)}
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600">
                         <Calendar size={14} />
@@ -287,7 +289,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                           href={purchase.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1 text-sm font-medium"
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-1 text-sm font-medium shadow-md"
                         >
                           <ExternalLink size={14} />
                           Vedi Prodotto
@@ -300,7 +302,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                             showToast('Acquisto eliminato', 'info');
                           }
                         }}
-                        className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1 text-sm font-medium"
+                        className="bg-gradient-to-r from-red-600 to-red-700 text-white py-2 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center gap-1 text-sm font-medium shadow-md"
                         title="Elimina acquisto"
                       >
                         <Trash2 size={14} />

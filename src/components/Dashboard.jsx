@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
 import { calculateTotal, calculateByPlatform, getMonthlyData, filterPurchasesByPeriod } from '../utils/calculations';
+import MiniCalendar from './MiniCalendar';
 
 const COLORS = {
   Amazon: '#FF9900',
@@ -94,7 +95,7 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                   onClick={() => setPeriod(p.value)}
                   className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
                     period === p.value
-                      ? 'bg-blue-600 text-white shadow-md'
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -171,7 +172,7 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
         </div>
       </div>
 
-      {/* Charts - Simplified to most useful ones */}
+      {/* Charts and Calendar */}
       {filteredPurchases.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trend temporale */}
@@ -250,6 +251,11 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                 />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+
+          {/* Mini Calendar */}
+          <div className="lg:col-span-2">
+            <MiniCalendar purchases={filteredPurchases} />
           </div>
         </div>
       )}

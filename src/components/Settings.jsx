@@ -105,7 +105,7 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
 
         <button
           onClick={handleSave}
-          className="w-full md:w-auto bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
+          className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center gap-2 font-medium shadow-md"
         >
           <Save size={20} />
           Salva Impostazioni
@@ -142,13 +142,13 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
           <button
             onClick={exportData}
             disabled={purchases.length === 0}
-            className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
           >
             <Download size={20} />
             Esporta Dati
           </button>
 
-          <label className="bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 font-medium cursor-pointer">
+          <label className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all flex items-center justify-center gap-2 font-medium cursor-pointer shadow-md">
             <Upload size={20} />
             Importa Dati
             <input
@@ -191,7 +191,7 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
 
         <button
           onClick={() => setShowResetModal(true)}
-          className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-medium"
+          className="bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center justify-center gap-2 font-medium shadow-md"
         >
           <Trash2 size={20} />
           Cancella Tutti i Dati
@@ -231,13 +231,13 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
             <div className="flex gap-3">
               <button
                 onClick={() => setShowResetModal(false)}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="flex-1 bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 py-3 px-6 rounded-lg hover:from-gray-400 hover:to-gray-500 transition-all font-medium shadow-md"
               >
                 Annulla
               </button>
               <button
                 onClick={handleReset}
-                className="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-medium shadow-md"
               >
                 Sì, Cancella Tutto
               </button>
