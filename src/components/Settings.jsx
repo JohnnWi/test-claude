@@ -47,8 +47,9 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
 
   const toggleDarkMode = () => {
     const newDarkMode = !formData.darkMode;
-    setFormData(prev => ({ ...prev, darkMode: newDarkMode }));
-    setUserSettings({ ...formData, darkMode: newDarkMode });
+    const newSettings = { ...formData, darkMode: newDarkMode };
+    setFormData(newSettings);
+    setUserSettings(newSettings);
 
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
@@ -404,30 +405,30 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       </div>
 
       {/* Statistiche Account */}
-      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Statistiche Account</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Statistiche Account</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-lg p-4">
-            <p className="text-sm text-green-700 font-medium mb-1">Acquisti Totali</p>
-            <p className="text-3xl font-bold text-green-800">{stats.totalPurchases}</p>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-2 border-green-200 dark:border-green-700 rounded-lg p-4 transition-colors">
+            <p className="text-sm text-green-700 dark:text-green-300 font-medium mb-1">Acquisti Totali</p>
+            <p className="text-3xl font-bold text-green-800 dark:text-green-100">{stats.totalPurchases}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-700 font-medium mb-1">Spesa Totale</p>
-            <p className="text-3xl font-bold text-blue-800">€{stats.totalSpent.toFixed(2)}</p>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-2 border-blue-200 dark:border-blue-700 rounded-lg p-4 transition-colors">
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mb-1">Spesa Totale</p>
+            <p className="text-3xl font-bold text-blue-800 dark:text-blue-100">€{stats.totalSpent.toFixed(2)}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-lg p-4">
-            <p className="text-sm text-purple-700 font-medium mb-1">Dati Salvati</p>
-            <p className="text-3xl font-bold text-purple-800">{stats.dataSize.toFixed(2)} KB</p>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-2 border-purple-200 dark:border-purple-700 rounded-lg p-4 transition-colors">
+            <p className="text-sm text-purple-700 dark:text-purple-300 font-medium mb-1">Dati Salvati</p>
+            <p className="text-3xl font-bold text-purple-800 dark:text-purple-100">{stats.dataSize.toFixed(2)} KB</p>
           </div>
         </div>
       </div>
 
       {/* Gestione Dati */}
-      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Gestione Dati</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Gestione Dati</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <button
@@ -460,14 +461,14 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
           </label>
         </div>
 
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-200 dark:border-yellow-700 rounded-lg p-4 transition-colors">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="text-yellow-600 flex-shrink-0" size={24} />
+            <AlertTriangle className="text-yellow-600 dark:text-yellow-400 flex-shrink-0" size={24} />
             <div>
-              <p className="text-sm text-yellow-800 font-medium mb-1">
+              <p className="text-sm text-yellow-800 dark:text-yellow-300 font-medium mb-1">
                 Informazioni sulla Privacy
               </p>
-              <p className="text-xs text-yellow-700">
+              <p className="text-xs text-yellow-700 dark:text-yellow-400">
                 Tutti i tuoi dati sono salvati localmente nel browser (localStorage).
                 Nessun dato viene inviato a server esterni.
                 Ti consigliamo di esportare regolarmente i tuoi dati come backup.
@@ -478,13 +479,13 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       </div>
 
       {/* Zona Pericolosa */}
-      <div className="bg-white rounded-xl shadow-xl p-6 border-2 border-red-200">
-        <h3 className="text-xl font-bold text-red-800 mb-4 flex items-center gap-2">
-          <AlertTriangle className="text-red-600" size={24} />
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border-2 border-red-200 dark:border-red-800 transition-colors">
+        <h3 className="text-xl font-bold text-red-800 dark:text-red-400 mb-4 flex items-center gap-2">
+          <AlertTriangle className="text-red-600 dark:text-red-400" size={24} />
           Zona Pericolosa
         </h3>
 
-        <p className="text-sm text-gray-700 mb-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
           Questa azione cancellerà TUTTI i tuoi dati inclusi acquisti e impostazioni.
           Questa operazione è irreversibile!
         </p>
@@ -501,29 +502,29 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       {/* Modal Conferma Reset */}
       {showResetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in transition-colors">
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-red-100 p-3 rounded-full">
-                <AlertTriangle className="text-red-600" size={32} />
+              <div className="bg-red-100 dark:bg-red-900/50 p-3 rounded-full">
+                <AlertTriangle className="text-red-600 dark:text-red-400" size={32} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800">Conferma Cancellazione</h3>
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Conferma Cancellazione</h3>
             </div>
 
-            <p className="text-gray-700 mb-6">
-              Sei sicuro di voler cancellare <span className="font-bold text-red-600">TUTTI</span> i dati?
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Sei sicuro di voler cancellare <span className="font-bold text-red-600 dark:text-red-400">TUTTI</span> i dati?
               <br />
               <br />
               Verranno eliminati:
             </p>
 
-            <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1">
+            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 mb-6 space-y-1">
               <li><span className="font-semibold">{purchases.length}</span> acquisti</li>
               <li>Tutte le impostazioni personali</li>
               <li>Tutti i backup locali</li>
             </ul>
 
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 mb-6">
-              <p className="text-sm text-red-800 font-bold">
+            <div className="bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800 rounded-lg p-3 mb-6 transition-colors">
+              <p className="text-sm text-red-800 dark:text-red-300 font-bold">
                 ⚠️ Questa azione NON può essere annullata!
               </p>
             </div>

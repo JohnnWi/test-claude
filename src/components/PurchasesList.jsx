@@ -77,40 +77,40 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
     <div className="space-y-4">
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4">
-          <p className="text-sm text-blue-700 font-medium mb-1">Totale Acquisti</p>
-          <p className="text-3xl font-bold text-blue-800">{filteredPurchases.length}</p>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4 transition-colors">
+          <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mb-1">Totale Acquisti</p>
+          <p className="text-3xl font-bold text-blue-800 dark:text-blue-100">{filteredPurchases.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4">
-          <p className="text-sm text-green-700 font-medium mb-1">Spesa Totale</p>
-          <p className="text-3xl font-bold text-green-800">€{totalSpent.toFixed(2)}</p>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 border-2 border-green-200 dark:border-green-700 rounded-xl p-4 transition-colors">
+          <p className="text-sm text-green-700 dark:text-green-300 font-medium mb-1">Spesa Totale</p>
+          <p className="text-3xl font-bold text-green-800 dark:text-green-100">€{totalSpent.toFixed(2)}</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4">
-          <p className="text-sm text-purple-700 font-medium mb-1">Spesa Media</p>
-          <p className="text-3xl font-bold text-purple-800">€{avgPrice.toFixed(2)}</p>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-2 border-purple-200 dark:border-purple-700 rounded-xl p-4 transition-colors">
+          <p className="text-sm text-purple-700 dark:text-purple-300 font-medium mb-1">Spesa Media</p>
+          <p className="text-3xl font-bold text-purple-800 dark:text-purple-100">€{avgPrice.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Package className="text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              <Package className="text-blue-600 dark:text-blue-400" />
               Lista Acquisti
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
               {filteredPurchases.length} {filteredPurchases.length === 1 ? 'acquisto trovato' : 'acquisti trovati'}
             </p>
           </div>
 
           {/* View Toggle */}
-          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+          <div className="flex gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
           <button
             onClick={() => setViewMode('grid')}
             className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
               viewMode === 'grid'
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
             }`}
           >
             <Grid3x3 size={18} />
@@ -121,7 +121,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
             className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
               viewMode === 'list'
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
             }`}
           >
             <List size={18} />
@@ -133,20 +133,20 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
           <input
             type="text"
             placeholder="Cerca per nome o piattaforma..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
 
       {/* Platform Filter */}
       <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-700 mb-2">Filtra per Piattaforma:</p>
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Filtra per Piattaforma:</p>
         <div className="flex gap-2 flex-wrap">
           {['all', 'Amazon', 'AliExpress', 'Altro'].map((platform) => (
             <button
@@ -155,7 +155,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 platformFilter === platform
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               {platform === 'all' ? 'Tutte' : platform}
@@ -171,7 +171,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'date'
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
         >
           <Calendar size={16} />
@@ -182,7 +182,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'price'
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
         >
           <Euro size={16} />
@@ -193,7 +193,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
           className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
             sortBy === 'name'
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
         >
           <Package size={16} />
@@ -211,7 +211,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
                 key={purchase.id}
                 className={`bg-gradient-to-br ${platformGradients[purchase.platform] || platformGradients.Altro} border-2 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden`}
               >
-                <div className="relative h-40 bg-white flex items-center justify-center overflow-hidden">
+                <div className="relative h-40 bg-white dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                   <img
                     src={getProductImage(purchase)}
                     alt={purchase.name}
@@ -233,16 +233,16 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
                 </div>
 
                 <div className="p-4 flex flex-col h-[220px]">
-                  <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2 h-[56px]">
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg mb-2 line-clamp-2 h-[56px]">
                     {purchase.name}
                   </h3>
 
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1 text-2xl font-bold text-gray-900">
-                      <Euro size={20} className="text-green-600" />
+                    <div className="flex items-center gap-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      <Euro size={20} className="text-green-600 dark:text-green-400" />
                       {purchase.price.toFixed(2)}
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                       <Calendar size={14} />
                       {format(parseISO(purchase.date), 'd MMM', { locale: it })}
                     </div>
@@ -250,7 +250,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
 
                   <div className="flex-1 mb-3 min-h-[40px]">
                     {purchase.notes && (
-                      <p className="text-xs text-gray-600 italic line-clamp-2 bg-white/50 p-2 rounded border-l-2 border-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-300 italic line-clamp-2 bg-white/50 dark:bg-gray-800/50 p-2 rounded border-l-2 border-gray-400 dark:border-gray-500">
                         "{purchase.notes}"
                       </p>
                     )}
@@ -298,11 +298,11 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
             {filteredPurchases.map((purchase) => (
               <div
                 key={purchase.id}
-                className="bg-white border-2 border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
+                className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
               >
                 <div className="flex gap-4 p-4">
                   {/* Immagine piccola */}
-                  <div className="flex-shrink-0 w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
+                  <div className="flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                     <img
                       src={getProductImage(purchase)}
                       alt={purchase.name}
@@ -321,7 +321,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
                   {/* Contenuto */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-gray-800 text-lg line-clamp-1">
+                      <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg line-clamp-1">
                         {purchase.name}
                       </h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 whitespace-nowrap ${platformColors[purchase.platform]}`}>
@@ -330,18 +330,18 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
                     </div>
 
                     <div className="flex items-center gap-4 mb-2 flex-wrap">
-                      <div className="flex items-center gap-1 text-xl font-bold text-gray-900">
-                        <Euro size={18} className="text-green-600" />
+                      <div className="flex items-center gap-1 text-xl font-bold text-gray-900 dark:text-gray-100">
+                        <Euro size={18} className="text-green-600 dark:text-green-400" />
                         {purchase.price.toFixed(2)}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                         <Calendar size={14} />
                         {format(parseISO(purchase.date), 'd MMMM yyyy', { locale: it })}
                       </div>
                     </div>
 
                     {purchase.notes && (
-                      <p className="text-sm text-gray-600 italic mb-2 line-clamp-2 border-l-2 border-gray-300 pl-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 italic mb-2 line-clamp-2 border-l-2 border-gray-300 dark:border-gray-600 pl-3">
                         "{purchase.notes}"
                       </p>
                     )}
@@ -388,8 +388,8 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
         )
       ) : (
         <div className="text-center py-12">
-          <Package size={64} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 font-medium">
+          <Package size={64} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 font-medium">
             {searchTerm ? 'Nessun acquisto trovato per la ricerca' : 'Nessun acquisto da mostrare'}
           </p>
         </div>
