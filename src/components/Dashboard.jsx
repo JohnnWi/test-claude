@@ -31,6 +31,23 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+// Custom Tooltip per conteggio (senza €)
+const CustomTooltipCount = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white px-4 py-3 rounded-lg shadow-xl border border-gray-200">
+        <p className="font-semibold text-gray-800 mb-1">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: <span className="font-bold">{entry.value}</span>
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 // Custom Label per Pie Chart
 const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
   const RADIAN = Math.PI / 180;
@@ -172,6 +189,70 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
         </div>
       </div>
 
+      {/* Additional Stats */}
+      {filteredPurchases.length > 0 && (
+        <div className="bg-gradient-to-r from-green-50 to-red-50 rounded-xl shadow-xl p-6 border border-gray-200">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Statistiche Aggiuntive</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white border-2 border-green-300 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-transform duration-200">
+              <p className="text-sm text-green-700 font-medium mb-1 flex items-center gap-2">
+                <span className="text-2xl">💰</span>
+                Acquisto più Economico
+              </p>
+              <p className="text-3xl font-bold text-green-800 my-2">
+                €{Math.min(...filteredPurchases.map(p => p.price)).toFixed(2)}
+              </p>
+              <p className="text-sm text-green-600 font-medium">
+                {filteredPurchases.find(p => p.price === Math.min(...filteredPurchases.map(p => p.price)))?.name}
+              </p>
+            </div>
+            <div className="bg-white border-2 border-red-300 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-transform duration-200">
+              <p className="text-sm text-red-700 font-medium mb-1 flex items-center gap-2">
+                <span className="text-2xl">💎</span>
+                Acquisto più Costoso
+              </p>
+              <p className="text-3xl font-bold text-red-800 my-2">
+                €{Math.max(...filteredPurchases.map(p => p.price)).toFixed(2)}
+              </p>
+              <p className="text-sm text-red-600 font-medium">
+                {filteredPurchases.find(p => p.price === Math.max(...filteredPurchases.map(p => p.price)))?.name}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Platform Breakdown */}
+      {Object.keys(byPlatform).length > 0 && (
+        <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Dettaglio per Piattaforma</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(byPlatform).map(([platform, data]) => (
+              <div
+                key={platform}
+                className="border-2 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-all duration-200 hover:shadow-2xl"
+                style={{ borderColor: COLORS[platform] || '#6366f1' }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-gray-800 text-lg">{platform}</h4>
+                  <div
+                    className="w-6 h-6 rounded-full shadow-md"
+                    style={{ backgroundColor: COLORS[platform] || '#6366f1' }}
+                  />
+                </div>
+                <p className="text-3xl font-bold mb-2" style={{ color: COLORS[platform] || '#6366f1' }}>
+                  €{data.total.toFixed(2)}
+                </p>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span className="font-medium">{data.count} acquisti</span>
+                  <span className="font-medium">Avg: €{(data.total / data.count).toFixed(2)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Charts and Calendar */}
       {filteredPurchases.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -275,7 +356,7 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                   style={{ fontSize: '12px' }}
                   allowDecimals={false}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltipCount />} />
                 <Bar
                   dataKey="count"
                   fill="#8b5cf6"
@@ -339,70 +420,6 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                   );
                 })}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Additional Stats */}
-      {filteredPurchases.length > 0 && (
-        <div className="bg-gradient-to-r from-green-50 to-red-50 rounded-xl shadow-xl p-6 border border-gray-200">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Statistiche Aggiuntive</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white border-2 border-green-300 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-transform duration-200">
-              <p className="text-sm text-green-700 font-medium mb-1 flex items-center gap-2">
-                <span className="text-2xl">💰</span>
-                Acquisto più Economico
-              </p>
-              <p className="text-3xl font-bold text-green-800 my-2">
-                €{Math.min(...filteredPurchases.map(p => p.price)).toFixed(2)}
-              </p>
-              <p className="text-sm text-green-600 font-medium">
-                {filteredPurchases.find(p => p.price === Math.min(...filteredPurchases.map(p => p.price)))?.name}
-              </p>
-            </div>
-            <div className="bg-white border-2 border-red-300 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-transform duration-200">
-              <p className="text-sm text-red-700 font-medium mb-1 flex items-center gap-2">
-                <span className="text-2xl">💎</span>
-                Acquisto più Costoso
-              </p>
-              <p className="text-3xl font-bold text-red-800 my-2">
-                €{Math.max(...filteredPurchases.map(p => p.price)).toFixed(2)}
-              </p>
-              <p className="text-sm text-red-600 font-medium">
-                {filteredPurchases.find(p => p.price === Math.max(...filteredPurchases.map(p => p.price)))?.name}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Platform Breakdown */}
-      {Object.keys(byPlatform).length > 0 && (
-        <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Dettaglio per Piattaforma</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.entries(byPlatform).map(([platform, data]) => (
-              <div
-                key={platform}
-                className="border-2 rounded-xl p-5 shadow-lg transform hover:scale-105 transition-all duration-200 hover:shadow-2xl"
-                style={{ borderColor: COLORS[platform] || '#6366f1' }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-bold text-gray-800 text-lg">{platform}</h4>
-                  <div
-                    className="w-6 h-6 rounded-full shadow-md"
-                    style={{ backgroundColor: COLORS[platform] || '#6366f1' }}
-                  />
-                </div>
-                <p className="text-3xl font-bold mb-2" style={{ color: COLORS[platform] || '#6366f1' }}>
-                  €{data.total.toFixed(2)}
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                  <span className="font-medium">{data.count} acquisti</span>
-                  <span className="font-medium">Avg: €{(data.total / data.count).toFixed(2)}</span>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       )}

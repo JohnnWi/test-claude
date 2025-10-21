@@ -42,20 +42,28 @@ export const calculateByPlatform = (purchases) => {
 
 export const getMonthlyData = (purchases) => {
   const monthlyData = {};
+  const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
   purchases.forEach(p => {
     const date = parseISO(p.date);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const year = date.getFullYear();
+    const monthIndex = date.getMonth();
+    const monthKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthLabel = `${monthNames[monthIndex]} ${year}`;
 
     if (!monthlyData[monthKey]) {
-      monthlyData[monthKey] = 0;
+      monthlyData[monthKey] = {
+        sortKey: monthKey,
+        month: monthLabel,
+        total: 0
+      };
     }
-    monthlyData[monthKey] += parseFloat(p.price);
+    monthlyData[monthKey].total += parseFloat(p.price);
   });
 
-  return Object.entries(monthlyData)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, total]) => ({
+  return Object.values(monthlyData)
+    .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+    .map(({ month, total }) => ({
       month,
       total: parseFloat(total.toFixed(2))
     }));

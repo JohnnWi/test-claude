@@ -220,8 +220,16 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
               value={formData.imageUrl}
               onChange={handleChange}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="https://... (oppure usa il bottone Auto)"
+              placeholder="Incolla qui l'URL dell'immagine..."
             />
+            <div className="mt-2 bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+              <p className="text-xs text-blue-800">
+                <strong>💡 Come ottenere l'immagine:</strong><br/>
+                1. Vai sulla pagina del prodotto<br/>
+                2. Click destro sull'immagine → "Copia indirizzo immagine"<br/>
+                3. Incolla qui sopra
+              </p>
+            </div>
             {formData.imageUrl && (
               <div className="mt-3 border-2 border-gray-200 rounded-xl p-3 bg-gray-50">
                 <p className="text-xs text-gray-600 mb-2">Anteprima:</p>
