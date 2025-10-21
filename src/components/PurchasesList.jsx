@@ -401,7 +401,6 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
           </p>
         </div>
       )}
-      </div>
     </div>
   );
 }
