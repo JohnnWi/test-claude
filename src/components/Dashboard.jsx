@@ -137,59 +137,51 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Spesa Totale</p>
-              <p className="text-3xl font-bold mt-1">€{total.toFixed(2)}</p>
-              <p className="text-blue-100 text-xs mt-1">{periodLabels[period]}</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-full">
-              <Euro size={32} className="opacity-90" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-blue-100 font-medium text-base">Spesa Totale</p>
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <Euro size={48} className="opacity-90" />
             </div>
           </div>
+          <p className="text-5xl font-extrabold mb-2">€{total.toFixed(2)}</p>
+          <p className="text-blue-100 text-sm">{periodLabels[period]}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Acquisti</p>
-              <p className="text-3xl font-bold mt-1">{filteredPurchases.length}</p>
-              <p className="text-green-100 text-xs mt-1">{periodLabels[period]}</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-full">
-              <ShoppingBag size={32} className="opacity-90" />
+        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-green-100 font-medium text-base">Acquisti</p>
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <ShoppingBag size={48} className="opacity-90" />
             </div>
           </div>
+          <p className="text-5xl font-extrabold mb-2">{filteredPurchases.length}</p>
+          <p className="text-green-100 text-sm">{periodLabels[period]}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Media Acquisto</p>
-              <p className="text-3xl font-bold mt-1">
-                €{filteredPurchases.length > 0 ? (total / filteredPurchases.length).toFixed(2) : '0.00'}
-              </p>
-              <p className="text-purple-100 text-xs mt-1">Per ordine</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-full">
-              <TrendingUp size={32} className="opacity-90" />
+        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-purple-100 font-medium text-base">Media Acquisto</p>
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <TrendingUp size={48} className="opacity-90" />
             </div>
           </div>
+          <p className="text-5xl font-extrabold mb-2">
+            €{filteredPurchases.length > 0 ? (total / filteredPurchases.length).toFixed(2) : '0.00'}
+          </p>
+          <p className="text-purple-100 text-sm">Per ordine</p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm font-medium">Piattaforme</p>
-              <p className="text-3xl font-bold mt-1">{Object.keys(byPlatform).length}</p>
-              <p className="text-orange-100 text-xs mt-1">Utilizzate</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-full">
-              <Calendar size={32} className="opacity-90" />
+        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-orange-100 font-medium text-base">Piattaforme</p>
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <Calendar size={48} className="opacity-90" />
             </div>
           </div>
+          <p className="text-5xl font-extrabold mb-2">{Object.keys(byPlatform).length}</p>
+          <p className="text-orange-100 text-sm">Utilizzate</p>
         </div>
       </div>
 

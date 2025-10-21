@@ -76,23 +76,25 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
   return (
     <div className="space-y-4">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <p className="text-blue-100 text-sm font-medium mb-1">Totale Acquisti</p>
-          <p className="text-3xl font-bold">{filteredPurchases.length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <p className="text-blue-100 font-medium text-base mb-3">Totale Acquisti</p>
+          <p className="text-5xl font-extrabold">{filteredPurchases.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <p className="text-green-100 text-sm font-medium mb-1">Spesa Totale</p>
-          <p className="text-3xl font-bold">€{totalSpent.toFixed(2)}</p>
+        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <p className="text-green-100 font-medium text-base mb-3">Spesa Totale</p>
+          <p className="text-5xl font-extrabold">€{totalSpent.toFixed(2)}</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
-          <p className="text-purple-100 text-sm font-medium mb-1">Spesa Media</p>
-          <p className="text-3xl font-bold">€{avgPrice.toFixed(2)}</p>
+        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
+          <p className="text-purple-100 font-medium text-base mb-3">Spesa Media</p>
+          <p className="text-5xl font-extrabold">€{avgPrice.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+      {/* Toolbar Unificata */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors space-y-4">
+        {/* Row 1: Header + View Toggle */}
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <Package className="text-blue-600 dark:text-blue-400" />
@@ -105,100 +107,105 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
 
           {/* View Toggle */}
           <div className="flex gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
-              viewMode === 'grid'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
-            }`}
-          >
-            <Grid3x3 size={18} />
-            <span className="hidden sm:inline">Griglia</span>
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
-              viewMode === 'list'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
-            }`}
-          >
-            <List size={18} />
-            <span className="hidden sm:inline">Lista</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
-          <input
-            type="text"
-            placeholder="Cerca per nome o piattaforma..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-          />
-        </div>
-      </div>
-
-      {/* Platform Filter */}
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Filtra per Piattaforma:</p>
-        <div className="flex gap-2 flex-wrap">
-          {['all', 'Amazon', 'AliExpress', 'Altro'].map((platform) => (
             <button
-              key={platform}
-              onClick={() => setPlatformFilter(platform)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                platformFilter === platform
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              onClick={() => setViewMode('grid')}
+              className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
+                viewMode === 'grid'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
-              {platform === 'all' ? 'Tutte' : platform}
+              <Grid3x3 size={18} />
+              <span className="hidden sm:inline">Griglia</span>
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
+                viewMode === 'list'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+              }`}
+            >
+              <List size={18} />
+              <span className="hidden sm:inline">Lista</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Sort Buttons */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <button
-          onClick={() => toggleSort('date')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
-            sortBy === 'date'
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-        >
-          <Calendar size={16} />
-          Data {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
-        </button>
-        <button
-          onClick={() => toggleSort('price')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
-            sortBy === 'price'
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-        >
-          <Euro size={16} />
-          Prezzo {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
-        </button>
-        <button
-          onClick={() => toggleSort('name')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
-            sortBy === 'name'
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-        >
-          <Package size={16} />
-          Nome {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
-        </button>
+        {/* Row 2: Search + Platform Filter */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search Bar */}
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
+              <input
+                type="text"
+                placeholder="Cerca per nome o piattaforma..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+          </div>
+
+          {/* Platform Filter */}
+          <div className="flex gap-2 flex-wrap lg:flex-nowrap">
+            {['all', 'Amazon', 'AliExpress', 'Altro'].map((platform) => (
+              <button
+                key={platform}
+                onClick={() => setPlatformFilter(platform)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                  platformFilter === platform
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                {platform === 'all' ? 'Tutte' : platform}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Row 3: Sort Buttons */}
+        <div className="flex gap-2 flex-wrap border-t border-gray-200 dark:border-gray-700 pt-4">
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mr-2">
+            <ArrowUpDown size={16} className="mr-1" />
+            Ordina per:
+          </span>
+          <button
+            onClick={() => toggleSort('date')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+              sortBy === 'date'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <Calendar size={16} />
+            Data {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            onClick={() => toggleSort('price')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+              sortBy === 'price'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <Euro size={16} />
+            Prezzo {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            onClick={() => toggleSort('name')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+              sortBy === 'name'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <Package size={16} />
+            Nome {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+          </button>
+        </div>
       </div>
 
       {/* Purchases Grid/List */}
