@@ -308,15 +308,15 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       </div>
 
       {/* Profilo Utente */}
-      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <User className="text-blue-600" size={24} />
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+          <User className="text-blue-600 dark:text-blue-400" size={24} />
           Profilo Utente
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Nome
             </label>
             <input
@@ -324,13 +324,13 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors"
               placeholder="Mario"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Cognome
             </label>
             <input
@@ -338,15 +338,15 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors"
               placeholder="Rossi"
             />
           </div>
         </div>
 
         {formData.firstName && (
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-            <p className="text-blue-800 font-medium">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4 transition-colors">
+            <p className="text-blue-800 dark:text-blue-300 font-medium">
               Ciao, <span className="font-bold">{formData.firstName} {formData.lastName}</span>! 👋
             </p>
           </div>

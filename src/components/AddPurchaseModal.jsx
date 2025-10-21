@@ -9,6 +9,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
     imageUrl: '',
     date: new Date().toISOString().split('T')[0],
     platform: 'Amazon',
+    customPlatform: '',
     notes: ''
   });
 
@@ -21,7 +22,8 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
         link: editingPurchase.link || '',
         imageUrl: editingPurchase.imageUrl || '',
         date: editingPurchase.date,
-        platform: editingPurchase.platform,
+        platform: editingPurchase.platform === 'Amazon' || editingPurchase.platform === 'AliExpress' ? editingPurchase.platform : 'Altro',
+        customPlatform: (editingPurchase.platform !== 'Amazon' && editingPurchase.platform !== 'AliExpress') ? editingPurchase.platform : '',
         notes: editingPurchase.notes || ''
       });
     } else {
@@ -38,6 +40,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
       imageUrl: '',
       date: new Date().toISOString().split('T')[0],
       platform: 'Amazon',
+      customPlatform: '',
       notes: ''
     });
   };
@@ -54,11 +57,19 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
       return;
     }
 
+    if (formData.platform === 'Altro' && !formData.customPlatform.trim()) {
+      showToast('Inserisci il nome della piattaforma!', 'error');
+      return;
+    }
+
+    const finalPlatform = formData.platform === 'Altro' ? formData.customPlatform.trim() : formData.platform;
+
     if (editingPurchase) {
       // Modalità modifica
       onEditPurchase({
         ...editingPurchase,
         ...formData,
+        platform: finalPlatform,
         price: parseFloat(formData.price)
       });
       showToast('Acquisto modificato con successo!', 'success');
@@ -67,6 +78,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
       onAddPurchase({
         id: Date.now().toString(),
         ...formData,
+        platform: finalPlatform,
         price: parseFloat(formData.price)
       });
       showToast('Acquisto aggiunto con successo!', 'success');
@@ -94,7 +106,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
           <div className="flex items-center justify-between">
@@ -124,8 +136,8 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Nome Prodotto */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <ShoppingCart size={16} className="text-blue-600" />
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <ShoppingCart size={16} className="text-blue-600 dark:text-blue-400" />
               Nome Prodotto *
             </label>
             <input
@@ -133,7 +145,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Es: Cuffie Bluetooth Sony WH-1000XM4"
               required
             />
@@ -142,8 +154,8 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
           {/* Prezzo e Data */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <DollarSign size={16} className="text-green-600" />
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <DollarSign size={16} className="text-green-600 dark:text-green-400" />
                 Prezzo (€) *
               </label>
               <input
@@ -153,15 +165,15 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
                 onChange={handleChange}
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="29.99"
                 required
               />
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <Calendar size={16} className="text-purple-600" />
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <Calendar size={16} className="text-purple-600 dark:text-purple-400" />
                 Data Acquisto
               </label>
               <input
@@ -169,7 +181,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 required
               />
             </div>
@@ -177,8 +189,8 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
 
           {/* Link Prodotto */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <LinkIcon size={16} className="text-blue-600" />
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <LinkIcon size={16} className="text-blue-600 dark:text-blue-400" />
               Link Prodotto
             </label>
             <input
@@ -186,15 +198,15 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               name="link"
               value={formData.link}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="https://www.amazon.it/..."
             />
           </div>
 
           {/* URL Immagine */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <ImageIcon size={16} className="text-pink-600" />
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <ImageIcon size={16} className="text-pink-600 dark:text-pink-400" />
               URL Immagine Prodotto
             </label>
             <input
@@ -202,11 +214,11 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               name="imageUrl"
               value={formData.imageUrl}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Incolla qui l'URL dell'immagine..."
             />
-            <div className="mt-2 bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
-              <p className="text-xs text-blue-800">
+            <div className="mt-2 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-400 p-3 rounded">
+              <p className="text-xs text-blue-800 dark:text-blue-200">
                 <strong>💡 Come ottenere l'immagine manualmente:</strong><br/>
                 <strong>Amazon:</strong> Apri l'immagine in una nuova scheda → Copia l'URL dalla barra indirizzi<br/>
                 <strong>AliExpress:</strong> Click destro sull'immagine → "Apri immagine in una nuova scheda" → Copia URL<br/>
@@ -214,8 +226,8 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               </p>
             </div>
             {formData.imageUrl && (
-              <div className="mt-3 border-2 border-gray-200 rounded-xl p-3 bg-gray-50">
-                <p className="text-xs text-gray-600 mb-2">Anteprima:</p>
+              <div className="mt-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl p-3 bg-gray-50 dark:bg-gray-700">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Anteprima:</p>
                 <img
                   src={formData.imageUrl}
                   alt="Preview"
@@ -232,7 +244,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
 
           {/* Piattaforma */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
               Piattaforma
             </label>
             <div className="flex gap-3 flex-wrap">
@@ -242,7 +254,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
                   className={`flex-1 min-w-[120px] cursor-pointer transition-all ${
                     formData.platform === platform
                       ? 'bg-blue-600 text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   } rounded-xl p-3 text-center font-medium`}
                 >
                   <input
@@ -257,12 +269,31 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
                 </label>
               ))}
             </div>
+
+            {/* Campo personalizzato per "Altro" */}
+            {formData.platform === 'Altro' && (
+              <div className="mt-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <ShoppingCart size={16} className="text-purple-600 dark:text-purple-400" />
+                  Nome Piattaforma *
+                </label>
+                <input
+                  type="text"
+                  name="customPlatform"
+                  value={formData.customPlatform}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Es: eBay, Wish, Temu..."
+                  required
+                />
+              </div>
+            )}
           </div>
 
           {/* Note */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <FileText size={16} className="text-gray-600" />
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <FileText size={16} className="text-gray-600 dark:text-gray-400" />
               Note
             </label>
             <textarea
@@ -270,7 +301,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               value={formData.notes}
               onChange={handleChange}
               rows="3"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
               placeholder="Aggiungi note sull'acquisto... (es: Regalo di compleanno, Sconto 50%)"
             />
           </div>
@@ -280,7 +311,7 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-xl hover:bg-gray-300 transition-colors font-semibold"
+              className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-3 px-6 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold"
             >
               Annulla
             </button>
