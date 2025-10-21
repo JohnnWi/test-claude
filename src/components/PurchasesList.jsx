@@ -28,7 +28,7 @@ export default function PurchasesList({ purchases, onDeletePurchase, onEditPurch
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'list'
+  const [viewMode, setViewMode] = useState('list'); // 'grid' o 'list'
   const [platformFilter, setPlatformFilter] = useState('all'); // 'all', 'Amazon', 'AliExpress', 'Altro'
 
   const filteredPurchases = purchases

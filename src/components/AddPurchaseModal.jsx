@@ -99,38 +99,52 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
 
     setIsLoadingPreview(true);
     try {
-      // Usa microlink.io per estrarre i meta tag Open Graph (come WhatsApp)
+      // Prova prima con microlink.io con screenshot come fallback
       const response = await fetch(
-        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}`
+        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}&screenshot=true&meta=false&palette=false&audio=false&video=false`
       );
       const data = await response.json();
 
-      console.log('Microlink Open Graph data:', data);
+      console.log('Microlink API response:', data);
 
       if (data.status === 'success' && data.data) {
-        // Estrai i meta tag Open Graph
-        const ogImage = data.data.image?.url;  // og:image
-        const ogTitle = data.data.title;        // og:title
-        const ogDescription = data.data.description; // og:description
+        // Priorità: logo -> image -> screenshot
+        let imageUrl = null;
+        let title = data.data.title;
 
-        if (ogImage) {
-          // Aggiorna form con immagine Open Graph
+        // Prova con Open Graph image
+        if (data.data.image?.url) {
+          imageUrl = data.data.image.url;
+          console.log('Found OG image:', imageUrl);
+        }
+        // Fallback a logo
+        else if (data.data.logo?.url) {
+          imageUrl = data.data.logo.url;
+          console.log('Found logo:', imageUrl);
+        }
+        // Fallback a screenshot
+        else if (data.data.screenshot?.url) {
+          imageUrl = data.data.screenshot.url;
+          console.log('Using screenshot:', imageUrl);
+        }
+
+        if (imageUrl) {
           setFormData(prev => ({
             ...prev,
-            imageUrl: ogImage,
-            // Se il nome è vuoto, usa il titolo OG
-            name: prev.name || ogTitle || prev.name
+            imageUrl: imageUrl,
+            name: prev.name || title || prev.name
           }));
-          showToast('✓ Immagine caricata da Open Graph!', 'success');
+          showToast('✓ Immagine caricata con successo!', 'success');
         } else {
-          showToast('Nessuna immagine Open Graph trovata. Copia l\'URL dell\'immagine manualmente.', 'info');
+          showToast('⚠️ Nessuna immagine trovata. Usa il metodo manuale qui sotto.', 'warning');
         }
       } else {
-        showToast('Impossibile estrarre dati dalla pagina. Inserisci l\'immagine manualmente.', 'info');
+        console.error('API Error:', data);
+        showToast('⚠️ Impossibile caricare l\'immagine. Usa il metodo manuale.', 'warning');
       }
     } catch (error) {
-      console.error('Error fetching Open Graph data:', error);
-      showToast('Errore nel caricamento. Verifica il link e riprova.', 'error');
+      console.error('Error fetching image:', error);
+      showToast('❌ Errore di caricamento. Usa il metodo manuale copiando l\'URL dell\'immagine.', 'error');
     } finally {
       setIsLoadingPreview(false);
     }
@@ -240,12 +254,14 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
                 type="button"
                 onClick={fetchImagePreview}
                 disabled={isLoadingPreview || !formData.link}
-                className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap font-medium"
+                className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap font-medium shadow-md"
               >
-                {isLoadingPreview ? '...' : '🔍 Auto'}
+                {isLoadingPreview ? '⏳ Carico...' : '🔍 Prova Auto'}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Incolla il link e clicca "Auto" per caricare l'immagine automaticamente</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Clicca "Prova Auto" per tentare il caricamento automatico (potrebbe non funzionare con Amazon/AliExpress)
+            </p>
           </div>
 
           {/* URL Immagine */}
@@ -264,10 +280,10 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
             />
             <div className="mt-2 bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
               <p className="text-xs text-blue-800">
-                <strong>💡 Come ottenere l'immagine:</strong><br/>
-                1. Vai sulla pagina del prodotto<br/>
-                2. Click destro sull'immagine → "Copia indirizzo immagine"<br/>
-                3. Incolla qui sopra
+                <strong>💡 Come ottenere l'immagine manualmente:</strong><br/>
+                <strong>Amazon:</strong> Apri l'immagine in una nuova scheda → Copia l'URL dalla barra indirizzi<br/>
+                <strong>AliExpress:</strong> Click destro sull'immagine → "Apri immagine in una nuova scheda" → Copia URL<br/>
+                <strong>Altro:</strong> Click destro sull'immagine → "Copia indirizzo immagine"
               </p>
             </div>
             {formData.imageUrl && (
