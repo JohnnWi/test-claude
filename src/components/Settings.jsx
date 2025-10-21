@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle } from 'lucide-react';
+import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle, Euro, TrendingUp } from 'lucide-react';
 
 export default function Settings({ purchases, setPurchases, showToast, exportData, importData }) {
   const [userSettings, setUserSettings] = useLocalStorage('userSettings', {
     firstName: '',
     lastName: '',
     currency: 'EUR',
-    language: 'it'
+    language: 'it',
+    budgetType: 'monthly', // 'monthly' o 'yearly'
+    monthlyBudget: 0,
+    yearlyBudget: 0
   });
 
   const [formData, setFormData] = useState(userSettings);
@@ -20,18 +23,17 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
 
   const handleReset = () => {
     setPurchases([]);
-    setUserSettings({
+    const defaultSettings = {
       firstName: '',
       lastName: '',
       currency: 'EUR',
-      language: 'it'
-    });
-    setFormData({
-      firstName: '',
-      lastName: '',
-      currency: 'EUR',
-      language: 'it'
-    });
+      language: 'it',
+      budgetType: 'monthly',
+      monthlyBudget: 0,
+      yearlyBudget: 0
+    };
+    setUserSettings(defaultSettings);
+    setFormData(defaultSettings);
     setShowResetModal(false);
     showToast('Tutti i dati sono stati cancellati!', 'warning');
   };
@@ -110,6 +112,95 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
           <Save size={20} />
           Salva Impostazioni
         </button>
+      </div>
+
+      {/* Gestione Budget */}
+      <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <TrendingUp className="text-green-600" size={24} />
+          Gestione Budget
+        </h3>
+
+        <p className="text-sm text-gray-600 mb-4">
+          Imposta un limite di spesa per monitorare le tue finanze. Verrai avvisato quando ti avvicini al limite.
+        </p>
+
+        {/* Tipo Budget */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Tipo di Budget
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, budgetType: 'monthly' }))}
+              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                formData.budgetType === 'monthly'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📅 Mensile
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, budgetType: 'yearly' }))}
+              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                formData.budgetType === 'yearly'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📆 Annuale
+            </button>
+          </div>
+        </div>
+
+        {/* Budget Mensile */}
+        {formData.budgetType === 'monthly' && (
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <Euro size={16} className="text-green-600" />
+              Budget Mensile (€)
+            </label>
+            <input
+              type="number"
+              name="monthlyBudget"
+              value={formData.monthlyBudget}
+              onChange={handleChange}
+              min="0"
+              step="10"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Es: 500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Lascia a 0 per disattivare il monitoraggio del budget
+            </p>
+          </div>
+        )}
+
+        {/* Budget Annuale */}
+        {formData.budgetType === 'yearly' && (
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <Euro size={16} className="text-green-600" />
+              Budget Annuale (€)
+            </label>
+            <input
+              type="number"
+              name="yearlyBudget"
+              value={formData.yearlyBudget}
+              onChange={handleChange}
+              min="0"
+              step="100"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Es: 5000"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Lascia a 0 per disattivare il monitoraggio del budget
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Statistiche Account */}

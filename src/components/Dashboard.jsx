@@ -4,9 +4,11 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter, AlertCircle, CheckCircle } from 'lucide-react';
 import { calculateTotal, calculateByPlatform, getMonthlyData, getAggregatedData, filterPurchasesByPeriod } from '../utils/calculations';
 import MiniCalendar from './MiniCalendar';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { startOfMonth, startOfYear, parseISO } from 'date-fns';
 
 const COLORS = {
   Amazon: '#FF9900',
@@ -72,12 +74,44 @@ const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, n
 export default function Dashboard({ purchases, onOpenAddModal }) {
   const [period, setPeriod] = useState('all');
   const [trendPeriod, setTrendPeriod] = useState('month'); // Filtro per grafico trend
+  const [userSettings] = useLocalStorage('userSettings', {
+    firstName: '',
+    lastName: '',
+    currency: 'EUR',
+    language: 'it',
+    budgetType: 'monthly',
+    monthlyBudget: 0,
+    yearlyBudget: 0
+  });
 
   const filteredPurchases = period === 'all' ? purchases : filterPurchasesByPeriod(purchases, period);
 
   const total = calculateTotal(filteredPurchases);
   const byPlatform = calculateByPlatform(filteredPurchases);
   const trendData = getAggregatedData(filteredPurchases, trendPeriod);
+
+  // Calcola spesa per budget
+  const now = new Date();
+  const currentMonthStart = startOfMonth(now);
+  const currentYearStart = startOfYear(now);
+
+  const purchasesThisMonth = purchases.filter(p => {
+    const purchaseDate = parseISO(p.date);
+    return purchaseDate >= currentMonthStart;
+  });
+
+  const purchasesThisYear = purchases.filter(p => {
+    const purchaseDate = parseISO(p.date);
+    return purchaseDate >= currentYearStart;
+  });
+
+  const spentThisMonth = calculateTotal(purchasesThisMonth);
+  const spentThisYear = calculateTotal(purchasesThisYear);
+
+  const activeBudget = userSettings.budgetType === 'monthly' ? userSettings.monthlyBudget : userSettings.yearlyBudget;
+  const currentSpent = userSettings.budgetType === 'monthly' ? spentThisMonth : spentThisYear;
+  const budgetPercentage = activeBudget > 0 ? (currentSpent / activeBudget) * 100 : 0;
+  const remainingBudget = activeBudget - currentSpent;
 
   const platformData = Object.entries(byPlatform).map(([platform, data]) => ({
     name: platform,
@@ -189,6 +223,112 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
           </div>
         </div>
       </div>
+
+      {/* Budget Tracker */}
+      {activeBudget > 0 && (
+        <div className={`rounded-xl shadow-xl p-6 border-2 ${
+          budgetPercentage >= 100
+            ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-300'
+            : budgetPercentage >= 80
+            ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-300'
+            : 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <TrendingUp className={`${
+                budgetPercentage >= 100
+                  ? 'text-red-600'
+                  : budgetPercentage >= 80
+                  ? 'text-yellow-600'
+                  : 'text-green-600'
+              }`} size={24} />
+              Budget {userSettings.budgetType === 'monthly' ? 'Mensile' : 'Annuale'}
+            </h3>
+            <div className="flex items-center gap-2">
+              {budgetPercentage >= 100 ? (
+                <AlertCircle className="text-red-600" size={24} />
+              ) : budgetPercentage >= 80 ? (
+                <AlertCircle className="text-yellow-600" size={24} />
+              ) : (
+                <CheckCircle className="text-green-600" size={24} />
+              )}
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-gray-700">
+                €{currentSpent.toFixed(2)} / €{activeBudget.toFixed(2)}
+              </span>
+              <span className={`text-sm font-bold ${
+                budgetPercentage >= 100
+                  ? 'text-red-700'
+                  : budgetPercentage >= 80
+                  ? 'text-yellow-700'
+                  : 'text-green-700'
+              }`}>
+                {budgetPercentage.toFixed(1)}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  budgetPercentage >= 100
+                    ? 'bg-gradient-to-r from-red-500 to-red-600'
+                    : budgetPercentage >= 80
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+                    : 'bg-gradient-to-r from-green-500 to-green-600'
+                }`}
+                style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Budget Info */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-white rounded-lg p-3 shadow">
+              <p className="text-xs text-gray-600 mb-1">Speso</p>
+              <p className="text-lg font-bold text-gray-800">€{currentSpent.toFixed(2)}</p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow">
+              <p className="text-xs text-gray-600 mb-1">Rimanente</p>
+              <p className={`text-lg font-bold ${remainingBudget >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                €{remainingBudget.toFixed(2)}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow">
+              <p className="text-xs text-gray-600 mb-1">Acquisti</p>
+              <p className="text-lg font-bold text-gray-800">
+                {userSettings.budgetType === 'monthly' ? purchasesThisMonth.length : purchasesThisYear.length}
+              </p>
+            </div>
+          </div>
+
+          {/* Alert Messages */}
+          {budgetPercentage >= 100 && (
+            <div className="mt-4 bg-red-100 border-l-4 border-red-500 p-3 rounded">
+              <p className="text-sm font-bold text-red-800">
+                ⚠️ Hai superato il budget! Sei oltre di €{Math.abs(remainingBudget).toFixed(2)}
+              </p>
+            </div>
+          )}
+          {budgetPercentage >= 80 && budgetPercentage < 100 && (
+            <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded">
+              <p className="text-sm font-bold text-yellow-800">
+                ⚠️ Attenzione! Hai utilizzato oltre l'80% del budget.
+              </p>
+            </div>
+          )}
+          {budgetPercentage < 80 && budgetPercentage > 0 && (
+            <div className="mt-4 bg-green-100 border-l-4 border-green-500 p-3 rounded">
+              <p className="text-sm font-bold text-green-800">
+                ✓ Ottimo lavoro! Stai rispettando il budget.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Additional Stats */}
       {filteredPurchases.length > 0 && (

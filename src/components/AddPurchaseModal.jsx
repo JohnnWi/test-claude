@@ -11,7 +11,6 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
     platform: 'Amazon',
     notes: ''
   });
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   // Popola il form quando si sta modificando un acquisto
   useEffect(() => {
@@ -88,65 +87,6 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
       } else if (value.includes('aliexpress')) {
         setFormData(prev => ({ ...prev, platform: 'AliExpress' }));
       }
-    }
-  };
-
-  const fetchImagePreview = async () => {
-    if (!formData.link) {
-      showToast('Inserisci prima un link del prodotto!', 'warning');
-      return;
-    }
-
-    setIsLoadingPreview(true);
-    try {
-      // Prova prima con microlink.io con screenshot come fallback
-      const response = await fetch(
-        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}&screenshot=true&meta=false&palette=false&audio=false&video=false`
-      );
-      const data = await response.json();
-
-      console.log('Microlink API response:', data);
-
-      if (data.status === 'success' && data.data) {
-        // Priorità: logo -> image -> screenshot
-        let imageUrl = null;
-        let title = data.data.title;
-
-        // Prova con Open Graph image
-        if (data.data.image?.url) {
-          imageUrl = data.data.image.url;
-          console.log('Found OG image:', imageUrl);
-        }
-        // Fallback a logo
-        else if (data.data.logo?.url) {
-          imageUrl = data.data.logo.url;
-          console.log('Found logo:', imageUrl);
-        }
-        // Fallback a screenshot
-        else if (data.data.screenshot?.url) {
-          imageUrl = data.data.screenshot.url;
-          console.log('Using screenshot:', imageUrl);
-        }
-
-        if (imageUrl) {
-          setFormData(prev => ({
-            ...prev,
-            imageUrl: imageUrl,
-            name: prev.name || title || prev.name
-          }));
-          showToast('✓ Immagine caricata con successo!', 'success');
-        } else {
-          showToast('⚠️ Nessuna immagine trovata. Usa il metodo manuale qui sotto.', 'warning');
-        }
-      } else {
-        console.error('API Error:', data);
-        showToast('⚠️ Impossibile caricare l\'immagine. Usa il metodo manuale.', 'warning');
-      }
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      showToast('❌ Errore di caricamento. Usa il metodo manuale copiando l\'URL dell\'immagine.', 'error');
-    } finally {
-      setIsLoadingPreview(false);
     }
   };
 
@@ -241,27 +181,14 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEdi
               <LinkIcon size={16} className="text-blue-600" />
               Link Prodotto
             </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                name="link"
-                value={formData.link}
-                onChange={handleChange}
-                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="https://www.amazon.it/..."
-              />
-              <button
-                type="button"
-                onClick={fetchImagePreview}
-                disabled={isLoadingPreview || !formData.link}
-                className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap font-medium shadow-md"
-              >
-                {isLoadingPreview ? '⏳ Carico...' : '🔍 Prova Auto'}
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Clicca "Prova Auto" per tentare il caricamento automatico (potrebbe non funzionare con Amazon/AliExpress)
-            </p>
+            <input
+              type="url"
+              name="link"
+              value={formData.link}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="https://www.amazon.it/..."
+            />
           </div>
 
           {/* URL Immagine */}
