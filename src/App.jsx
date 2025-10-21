@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useToast } from './hooks/useToast';
-import AddPurchaseModal from './components/AddPurchaseModal';
 import QuickAddButton from './components/QuickAddButton';
-import Dashboard from './components/Dashboard';
-import PurchasesList from './components/PurchasesList';
-import Settings from './components/Settings';
 import { ToastContainer } from './components/Toast';
 import { LayoutDashboard, List, Download, Upload, Trash2, Settings as SettingsIcon } from 'lucide-react';
+import { sanitizeImportedPurchases } from './utils/importValidation';
+
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const PurchasesList = lazy(() => import('./components/PurchasesList'));
+const Settings = lazy(() => import('./components/Settings'));
+const AddPurchaseModal = lazy(() => import('./components/AddPurchaseModal'));
 
 function App() {
   const [purchases, setPurchases] = useLocalStorage('purchases', []);
@@ -39,13 +41,26 @@ function App() {
   };
 
   const exportData = () => {
-    const dataStr = JSON.stringify(purchases, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `acquisti_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
+    try {
+      if (purchases.length === 0) {
+        toast.info('Non ci sono dati da esportare al momento.');
+        return;
+      }
+
+      const dataStr = JSON.stringify(purchases, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `acquisti_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Esportazione completata!');
+    } catch (error) {
+      toast.error('Errore durante l\'esportazione: ' + error.message);
+    }
   };
 
   const importData = (event) => {
@@ -54,12 +69,18 @@ function App() {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            setPurchases(imported);
-            toast.success(`${imported.length} acquisti importati con successo!`);
-          } else {
-            toast.error('Formato file non valido');
+          const parsed = JSON.parse(e.target.result);
+          const { sanitized, invalidCount } = sanitizeImportedPurchases(parsed);
+
+          if (sanitized.length === 0) {
+            throw new Error('Nessun acquisto valido trovato nel file.');
+          }
+
+          setPurchases(sanitized);
+          toast.success(`${sanitized.length} acquisti importati con successo!`);
+
+          if (invalidCount > 0) {
+            toast.warning(`${invalidCount} elemento/i sono stati ignorati perché incompleti.`);
           }
         } catch (error) {
           toast.error('Errore durante l\'importazione: ' + error.message);
@@ -129,14 +150,18 @@ function App() {
       <ToastContainer toasts={toast.toasts} removeToast={toast.removeToast} />
 
       {/* Add Purchase Modal */}
-      <AddPurchaseModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onAddPurchase={handleAddPurchase}
-        onEditPurchase={handleEditPurchase}
-        editingPurchase={editingPurchase}
-        showToast={toast.addToast}
-      />
+      <Suspense fallback={null}>
+        {(isModalOpen || editingPurchase) && (
+          <AddPurchaseModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onAddPurchase={handleAddPurchase}
+            onEditPurchase={handleEditPurchase}
+            editingPurchase={editingPurchase}
+            showToast={toast.addToast}
+          />
+        )}
+      </Suspense>
 
       {/* Floating Add Button */}
       <QuickAddButton onClick={() => setIsModalOpen(true)} />
@@ -184,31 +209,33 @@ function App() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'dashboard' && (
-          <Dashboard purchases={purchases} onOpenAddModal={() => setIsModalOpen(true)} />
-        )}
-        {activeTab === 'list' && (
-          <PurchasesList
-            purchases={purchases}
-            onDeletePurchase={handleDeletePurchase}
-            onEditPurchase={handleOpenEdit}
-            showToast={toast.addToast}
-          />
-        )}
-        {activeTab === 'settings' && (
-          <Settings
-            purchases={purchases}
-            setPurchases={setPurchases}
-            showToast={toast.addToast}
-            exportData={exportData}
-            importData={importData}
-          />
-        )}
+        <Suspense fallback={<div className="py-20 text-center text-gray-500 dark:text-gray-300">Caricamento sezione...</div>}>
+          {activeTab === 'dashboard' && (
+            <Dashboard purchases={purchases} onOpenAddModal={() => setIsModalOpen(true)} />
+          )}
+          {activeTab === 'list' && (
+            <PurchasesList
+              purchases={purchases}
+              onDeletePurchase={handleDeletePurchase}
+              onEditPurchase={handleOpenEdit}
+              showToast={toast.addToast}
+            />
+          )}
+          {activeTab === 'settings' && (
+            <Settings
+              purchases={purchases}
+              setPurchases={setPurchases}
+              showToast={toast.addToast}
+              exportData={exportData}
+              importData={importData}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white mt-12 py-6 shadow-md">
-        <div className="container mx-auto px-4 text-center text-gray-600">
+      <footer className="bg-white dark:bg-gray-900/70 mt-12 py-6 shadow-md backdrop-blur">
+        <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-300">
           <p>Tracker Spese Online - Tutti i dati sono salvati localmente nel tuo browser</p>
         </div>
       </footer>
