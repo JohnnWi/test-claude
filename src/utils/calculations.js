@@ -111,10 +111,12 @@ export const getMonthlyData = (purchases) => {
 export const getPriceRangeDistribution = (purchases) => {
   const ranges = [
     { min: 0, max: 20, label: '0-20€' },
-    { min: 20, max: 50, label: '20-50€' },
-    { min: 50, max: 100, label: '50-100€' },
-    { min: 100, max: 200, label: '100-200€' },
-    { min: 200, max: Infinity, label: '200+€' }
+    { min: 20, max: 40, label: '20-40€' },
+    { min: 40, max: 75, label: '40-75€' },
+    { min: 75, max: 125, label: '75-125€' },
+    { min: 125, max: 200, label: '125-200€' },
+    { min: 200, max: 350, label: '200-350€' },
+    { min: 350, max: Infinity, label: '350+€' }
   ];
 
   const distribution = ranges.map(range => ({

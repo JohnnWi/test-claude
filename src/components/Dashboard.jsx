@@ -257,19 +257,19 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
         </div>
       )}
 
-      {/* Top 5 + Mini Calendar Row */}
+      {/* Top 6 + Mini Calendar Row */}
       {filteredPurchases.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Top 5 Acquisti */}
+          {/* Top 6 Acquisti */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
               <TrendingUp className="text-green-600 dark:text-green-400" size={24} />
-              Top 5 Acquisti
+              Top 6 Acquisti
             </h3>
             <div className="space-y-3">
               {filteredPurchases
                 .sort((a, b) => b.price - a.price)
-                .slice(0, 5)
+                .slice(0, 6)
                 .map((purchase, index) => {
                   const maxPrice = Math.max(...filteredPurchases.map(p => p.price));
                   const percentage = (purchase.price / maxPrice) * 100;
@@ -471,13 +471,16 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
               Distribuzione Fasce di Prezzo
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={priceRangeData} barSize={50}>
+              <BarChart data={priceRangeData} barSize={35}>
                 <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
                 <XAxis
                   dataKey="range"
                   stroke="#9ca3af"
-                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  style={{ fontSize: '10px', fontWeight: 600 }}
                   tickLine={false}
+                  angle={-15}
+                  textAnchor="end"
+                  height={50}
                 />
                 <YAxis
                   stroke="#9ca3af"
