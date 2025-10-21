@@ -409,19 +409,19 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Statistiche Account</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
-            <p className="text-green-100 font-medium text-base mb-3">Acquisti Totali</p>
-            <p className="text-5xl font-extrabold">{stats.totalPurchases}</p>
+          <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <p className="text-green-100 text-sm font-medium mb-2">Acquisti Totali</p>
+            <p className="text-4xl font-bold">{stats.totalPurchases}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
-            <p className="text-blue-100 font-medium text-base mb-3">Spesa Totale</p>
-            <p className="text-5xl font-extrabold">€{stats.totalSpent.toFixed(2)}</p>
+          <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <p className="text-blue-100 text-sm font-medium mb-2">Spesa Totale</p>
+            <p className="text-4xl font-bold">€{stats.totalSpent.toFixed(2)}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-2xl p-8 text-white transform hover:scale-105 transition-transform duration-200">
-            <p className="text-purple-100 font-medium text-base mb-3">Dati Salvati</p>
-            <p className="text-5xl font-extrabold">{stats.dataSize.toFixed(2)} KB</p>
+          <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <p className="text-purple-100 text-sm font-medium mb-2">Dati Salvati</p>
+            <p className="text-4xl font-bold">{stats.dataSize.toFixed(2)} KB</p>
           </div>
         </div>
       </div>
