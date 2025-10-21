@@ -1,4 +1,4 @@
-import { startOfWeek, startOfMonth, startOfYear, isAfter, isBefore, parseISO, format } from 'date-fns';
+import { startOfWeek, startOfMonth, startOfYear, isAfter, parseISO, format } from 'date-fns';
 
 export const filterPurchasesByPeriod = (purchases, period) => {
   const now = new Date();

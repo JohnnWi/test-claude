@@ -5,7 +5,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
-import { calculateTotal, calculateByPlatform, getMonthlyData, getAggregatedData, filterPurchasesByPeriod, getPriceRangeDistribution, getPurchaseFrequency, getPurchasesByDayOfWeek } from '../utils/calculations';
+import { calculateTotal, calculateByPlatform, getAggregatedData, filterPurchasesByPeriod, getPriceRangeDistribution, getPurchaseFrequency, getPurchasesByDayOfWeek } from '../utils/calculations';
 import MiniCalendar from './MiniCalendar';
 
 const COLORS = {
@@ -49,7 +49,7 @@ const CustomTooltipCount = ({ active, payload, label }) => {
 };
 
 // Custom Label per Pie Chart
-const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
+const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
