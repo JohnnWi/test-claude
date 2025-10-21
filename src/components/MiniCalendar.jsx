@@ -49,46 +49,46 @@ export default function MiniCalendar({ purchases }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-4 border border-gray-100 dark:border-gray-700 transition-colors">
-      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
-        <CalendarIcon className="text-blue-600 dark:text-blue-400" size={20} />
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-3 border border-gray-100 dark:border-gray-700 transition-colors">
+      <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 mb-1.5 flex items-center gap-1.5">
+        <CalendarIcon className="text-blue-600 dark:text-blue-400" size={16} />
         Calendario
       </h3>
 
       {/* Header con navigazione mese */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1.5">
         <button
           onClick={handlePreviousMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           title="Mese precedente"
         >
-          <ChevronLeft size={18} className="text-gray-600 dark:text-gray-400" />
+          <ChevronLeft size={16} className="text-gray-600 dark:text-gray-400" />
         </button>
 
-        <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 capitalize">
+        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-100 capitalize">
           {format(currentMonth, 'MMM yyyy', { locale: it })}
         </h4>
 
         <button
           onClick={handleNextMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           title="Mese successivo"
         >
-          <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />
+          <ChevronRight size={16} className="text-gray-600 dark:text-gray-400" />
         </button>
       </div>
 
       {/* Giorni della settimana */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 gap-0.5 mb-1">
         {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((day, index) => (
-          <div key={index} className="text-center text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+          <div key={index} className="text-center text-[9px] font-semibold text-gray-500 dark:text-gray-400">
             {day}
           </div>
         ))}
       </div>
 
       {/* Giorni del mese */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5">
         {/* Padding per allineare il primo giorno */}
         {Array.from({ length: startPadding }).map((_, index) => (
           <div key={`padding-${index}`} className="aspect-square" />
@@ -119,24 +119,24 @@ export default function MiniCalendar({ purchases }) {
             >
               {hasPurchases ? (
                 <div className={`
-                  w-9 h-9 rounded-full flex items-center justify-center
+                  w-11 h-11 rounded-full flex items-center justify-center
                   bg-gradient-to-br ${colors?.bg}
                   shadow-md ${colors?.shadow}
                   transform transition-transform hover:scale-110
                 `}>
-                  <span className="text-xs font-bold text-white drop-shadow-sm">
+                  <span className="text-sm font-bold text-white drop-shadow-sm">
                     {format(day, 'd')}
                   </span>
 
                   {/* Badge con numero acquisti */}
                   {dayPurchases.length > 1 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-white dark:bg-gray-200 text-gray-800 dark:text-gray-900 text-[9px] font-bold px-1 min-w-[16px] text-center rounded-full shadow-md border border-gray-200 dark:border-gray-300">
+                    <span className="absolute -top-0.5 -right-0.5 bg-white dark:bg-gray-200 text-gray-800 dark:text-gray-900 text-[10px] font-bold px-1.5 min-w-[18px] text-center rounded-full shadow-md border border-gray-200 dark:border-gray-300">
                       {dayPurchases.length}
                     </span>
                   )}
                 </div>
               ) : (
-                <span className="text-xs text-gray-400 dark:text-gray-500">
+                <span className="text-sm text-gray-400 dark:text-gray-500">
                   {format(day, 'd')}
                 </span>
               )}
