@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, ShoppingCart, Plus, Link as LinkIcon, Image as ImageIcon, Calendar, DollarSign, FileText } from 'lucide-react';
+import { X, ShoppingCart, Plus, Link as LinkIcon, Image as ImageIcon, Calendar, DollarSign, FileText, RotateCcw, Save } from 'lucide-react';
 
-export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showToast }) {
+export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, onEditPurchase, editingPurchase, showToast }) {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -12,6 +12,36 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
     notes: ''
   });
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  // Popola il form quando si sta modificando un acquisto
+  useEffect(() => {
+    if (editingPurchase) {
+      setFormData({
+        name: editingPurchase.name,
+        price: editingPurchase.price.toString(),
+        link: editingPurchase.link || '',
+        imageUrl: editingPurchase.imageUrl || '',
+        date: editingPurchase.date,
+        platform: editingPurchase.platform,
+        notes: editingPurchase.notes || ''
+      });
+    } else {
+      // Reset del form quando non si sta modificando
+      resetForm();
+    }
+  }, [editingPurchase]);
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      price: '',
+      link: '',
+      imageUrl: '',
+      date: new Date().toISOString().split('T')[0],
+      platform: 'Amazon',
+      notes: ''
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,25 +55,25 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
       return;
     }
 
-    onAddPurchase({
-      id: Date.now().toString(),
-      ...formData,
-      price: parseFloat(formData.price)
-    });
+    if (editingPurchase) {
+      // Modalità modifica
+      onEditPurchase({
+        ...editingPurchase,
+        ...formData,
+        price: parseFloat(formData.price)
+      });
+      showToast('Acquisto modificato con successo!', 'success');
+    } else {
+      // Modalità aggiungi
+      onAddPurchase({
+        id: Date.now().toString(),
+        ...formData,
+        price: parseFloat(formData.price)
+      });
+      showToast('Acquisto aggiunto con successo!', 'success');
+    }
 
-    showToast('Acquisto aggiunto con successo!', 'success');
-
-    // Reset form
-    setFormData({
-      name: '',
-      price: '',
-      link: '',
-      imageUrl: '',
-      date: new Date().toISOString().split('T')[0],
-      platform: 'Amazon',
-      notes: ''
-    });
-
+    resetForm();
     onClose();
   };
 
@@ -119,8 +149,12 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
                 <ShoppingCart size={28} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold">Aggiungi Acquisto</h2>
-                <p className="text-blue-100 text-sm">Traccia un nuovo prodotto acquistato</p>
+                <h2 className="text-2xl font-bold">
+                  {editingPurchase ? 'Modifica Acquisto' : 'Aggiungi Acquisto'}
+                </h2>
+                <p className="text-blue-100 text-sm">
+                  {editingPurchase ? 'Aggiorna le informazioni del prodotto' : 'Traccia un nuovo prodotto acquistato'}
+                </p>
               </div>
             </div>
             <button
@@ -308,11 +342,28 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
               Annulla
             </button>
             <button
+              type="button"
+              onClick={resetForm}
+              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
+            >
+              <RotateCcw size={20} />
+              Reset
+            </button>
+            <button
               type="submit"
               className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
             >
-              <Plus size={20} />
-              Aggiungi Acquisto
+              {editingPurchase ? (
+                <>
+                  <Save size={20} />
+                  Salva Modifiche
+                </>
+              ) : (
+                <>
+                  <Plus size={20} />
+                  Aggiungi Acquisto
+                </>
+              )}
             </button>
           </div>
         </form>

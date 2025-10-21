@@ -13,10 +13,25 @@ function App() {
   const [purchases, setPurchases] = useLocalStorage('purchases', []);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPurchase, setEditingPurchase] = useState(null);
   const toast = useToast();
 
   const handleAddPurchase = (purchase) => {
     setPurchases([...purchases, purchase]);
+  };
+
+  const handleEditPurchase = (updatedPurchase) => {
+    setPurchases(purchases.map(p => p.id === updatedPurchase.id ? updatedPurchase : p));
+  };
+
+  const handleOpenEdit = (purchase) => {
+    setEditingPurchase(purchase);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingPurchase(null);
   };
 
   const handleDeletePurchase = (id) => {
@@ -116,8 +131,10 @@ function App() {
       {/* Add Purchase Modal */}
       <AddPurchaseModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onAddPurchase={handleAddPurchase}
+        onEditPurchase={handleEditPurchase}
+        editingPurchase={editingPurchase}
         showToast={toast.addToast}
       />
 
@@ -174,6 +191,7 @@ function App() {
           <PurchasesList
             purchases={purchases}
             onDeletePurchase={handleDeletePurchase}
+            onEditPurchase={handleOpenEdit}
             showToast={toast.addToast}
           />
         )}

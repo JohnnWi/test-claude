@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ExternalLink, Trash2, ArrowUpDown, Package, Calendar, Euro, Grid3x3, List } from 'lucide-react';
+import { Search, ExternalLink, Trash2, ArrowUpDown, Package, Calendar, Euro, Grid3x3, List, Edit } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -24,7 +24,7 @@ const getProductImage = (purchase) => {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstLetter)}&size=200&background=${bgColor}&color=${textColor}&bold=true&font-size=0.5`;
 };
 
-export default function PurchasesList({ purchases, onDeletePurchase, showToast }) {
+export default function PurchasesList({ purchases, onDeletePurchase, onEditPurchase, showToast }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
@@ -269,6 +269,13 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                       </a>
                     )}
                     <button
+                      onClick={() => onEditPurchase(purchase)}
+                      className="bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center gap-1 text-sm font-medium shadow-md"
+                      title="Modifica acquisto"
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
                       onClick={() => {
                         if (window.confirm('Sei sicuro di voler eliminare questo acquisto?')) {
                           onDeletePurchase(purchase.id);
@@ -351,6 +358,14 @@ export default function PurchasesList({ purchases, onDeletePurchase, showToast }
                           Vedi Prodotto
                         </a>
                       )}
+                      <button
+                        onClick={() => onEditPurchase(purchase)}
+                        className="bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center gap-1 text-sm font-medium shadow-md"
+                        title="Modifica acquisto"
+                      >
+                        <Edit size={14} />
+                        Modifica
+                      </button>
                       <button
                         onClick={() => {
                           if (window.confirm('Sei sicuro di voler eliminare questo acquisto?')) {

@@ -50,12 +50,24 @@ export const getAggregatedData = (purchases, aggregationType = 'month') => {
     let key, label;
 
     if (aggregationType === 'week') {
-      // Settimana: formato "W1 2025", "W2 2025"
+      // Settimana: formato "1-7 Gen 2025"
       const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
-      const weekNumber = Math.ceil((date.getDate() - startOfWeekDate.getDate()) / 7) + 1;
+      const endOfWeekDate = new Date(startOfWeekDate);
+      endOfWeekDate.setDate(endOfWeekDate.getDate() + 6);
+
       const weekInYear = format(date, 'w');
       key = `${date.getFullYear()}-W${weekInYear.padStart(2, '0')}`;
-      label = `Sett ${weekInYear} ${date.getFullYear()}`;
+
+      // Ottieni il mese abbreviato (Gen, Feb, ecc.)
+      const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+      const monthName = monthNames[startOfWeekDate.getMonth()];
+
+      // Formato: "1-7 Gen 2025"
+      const startDay = startOfWeekDate.getDate();
+      const endDay = endOfWeekDate.getDate();
+      const year = startOfWeekDate.getFullYear();
+
+      label = `${startDay}-${endDay} ${monthName} ${year}`;
     } else if (aggregationType === 'month') {
       // Mese: formato "Gen 2025"
       const year = date.getFullYear();
