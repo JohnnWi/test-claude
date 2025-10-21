@@ -1,17 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle } from 'lucide-react';
+import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle, Moon, Sun } from 'lucide-react';
 
 export default function Settings({ purchases, setPurchases, showToast, exportData, importData }) {
   const [userSettings, setUserSettings] = useLocalStorage('userSettings', {
     firstName: '',
     lastName: '',
     currency: 'EUR',
-    language: 'it'
+    language: 'it',
+    darkMode: false
   });
 
   const [formData, setFormData] = useState(userSettings);
   const [showResetModal, setShowResetModal] = useState(false);
+
+  // Applica dark mode quando cambia l'impostazione
+  useEffect(() => {
+    if (userSettings.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [userSettings.darkMode]);
 
   const handleSave = () => {
     setUserSettings(formData);
@@ -24,12 +34,25 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       firstName: '',
       lastName: '',
       currency: 'EUR',
-      language: 'it'
+      language: 'it',
+      darkMode: false
     };
     setUserSettings(defaultSettings);
     setFormData(defaultSettings);
     setShowResetModal(false);
     showToast('Tutti i dati sono stati cancellati!', 'warning');
+  };
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !formData.darkMode;
+    setFormData(prev => ({ ...prev, darkMode: newDarkMode }));
+    setUserSettings({ ...formData, darkMode: newDarkMode });
+
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   const handleChange = (e) => {
@@ -106,6 +129,49 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
           <Save size={20} />
           Salva Impostazioni
         </button>
+      </div>
+
+      {/* Tema Scuro */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+          {formData.darkMode ? <Moon className="text-purple-600" size={24} /> : <Sun className="text-yellow-600" size={24} />}
+          Tema Scuro
+        </h3>
+
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          Attiva il tema scuro per ridurre l'affaticamento degli occhi in ambienti poco illuminati.
+        </p>
+
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-lg">
+          <div className="flex items-center gap-3">
+            {formData.darkMode ? (
+              <Moon className="text-purple-600 dark:text-purple-400" size={28} />
+            ) : (
+              <Sun className="text-yellow-600" size={28} />
+            )}
+            <div>
+              <p className="font-semibold text-gray-800 dark:text-gray-100">
+                {formData.darkMode ? 'Tema Scuro Attivo' : 'Tema Chiaro Attivo'}
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">
+                {formData.darkMode ? 'Passa al tema chiaro' : 'Passa al tema scuro'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={toggleDarkMode}
+            className={`relative inline-flex items-center h-8 w-16 rounded-full transition-colors ${
+              formData.darkMode ? 'bg-purple-600' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block w-6 h-6 transform rounded-full bg-white shadow-lg transition-transform ${
+                formData.darkMode ? 'translate-x-9' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Statistiche Account */}
