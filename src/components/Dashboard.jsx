@@ -471,16 +471,16 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
               Distribuzione Fasce di Prezzo
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={priceRangeData} barSize={35}>
+              <BarChart data={priceRangeData} barSize={25}>
                 <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
                 <XAxis
                   dataKey="range"
                   stroke="#9ca3af"
-                  style={{ fontSize: '10px', fontWeight: 600 }}
+                  style={{ fontSize: '9px', fontWeight: 600 }}
                   tickLine={false}
-                  angle={-15}
+                  angle={-20}
                   textAnchor="end"
-                  height={50}
+                  height={55}
                 />
                 <YAxis
                   stroke="#9ca3af"
