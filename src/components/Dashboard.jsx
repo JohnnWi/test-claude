@@ -5,7 +5,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
-import { calculateTotal, calculateByPlatform, getMonthlyData, getAggregatedData, filterPurchasesByPeriod } from '../utils/calculations';
+import { calculateTotal, calculateByPlatform, getMonthlyData, getAggregatedData, filterPurchasesByPeriod, getPriceRangeDistribution, getPurchaseFrequency, getPurchasesByDayOfWeek } from '../utils/calculations';
 import MiniCalendar from './MiniCalendar';
 
 const COLORS = {
@@ -18,8 +18,8 @@ const COLORS = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white px-4 py-3 rounded-lg shadow-xl border border-gray-200">
-        <p className="font-semibold text-gray-800 mb-1">{label}</p>
+      <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600">
+        <p className="font-semibold text-gray-800 dark:text-gray-100 mb-1">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: <span className="font-bold">€{entry.value}</span>
@@ -35,8 +35,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 const CustomTooltipCount = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white px-4 py-3 rounded-lg shadow-xl border border-gray-200">
-        <p className="font-semibold text-gray-800 mb-1">{label}</p>
+      <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600">
+        <p className="font-semibold text-gray-800 dark:text-gray-100 mb-1">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: <span className="font-bold">{entry.value}</span>
@@ -78,6 +78,9 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
   const total = calculateTotal(filteredPurchases);
   const byPlatform = calculateByPlatform(filteredPurchases);
   const trendData = getAggregatedData(filteredPurchases, trendPeriod);
+  const priceRangeData = getPriceRangeDistribution(filteredPurchases);
+  const frequencyData = getPurchaseFrequency(filteredPurchases, trendPeriod);
+  const dayOfWeekData = getPurchasesByDayOfWeek(filteredPurchases);
 
   const platformData = Object.entries(byPlatform).map(([platform, data]) => ({
     name: platform,
@@ -254,7 +257,65 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
         </div>
       )}
 
-      {/* Charts and Calendar */}
+      {/* Top 5 + Mini Calendar Row */}
+      {filteredPurchases.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top 5 Acquisti */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <TrendingUp className="text-green-600 dark:text-green-400" size={24} />
+              Top 5 Acquisti
+            </h3>
+            <div className="space-y-3">
+              {filteredPurchases
+                .sort((a, b) => b.price - a.price)
+                .slice(0, 5)
+                .map((purchase, index) => {
+                  const maxPrice = Math.max(...filteredPurchases.map(p => p.price));
+                  const percentage = (purchase.price / maxPrice) * 100;
+                  return (
+                    <div key={purchase.id} className="relative">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl font-bold text-gray-400 dark:text-gray-500">
+                            {index + 1}
+                          </span>
+                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate max-w-[200px]">
+                            {purchase.name}
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                          €{purchase.price.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-1000`}
+                          style={{
+                            width: `${percentage}%`,
+                            background: COLORS[purchase.platform] || '#6366f1'
+                          }}
+                        />
+                      </div>
+                      <span className={`text-xs font-medium mt-1 inline-block px-2 py-0.5 rounded ${
+                        purchase.platform === 'Amazon' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' :
+                        purchase.platform === 'AliExpress' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' :
+                        'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
+                      }`}>
+                        {purchase.platform}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Mini Calendar */}
+          <MiniCalendar purchases={filteredPurchases} />
+        </div>
+      )}
+
+      {/* Charts */}
       {filteredPurchases.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trend temporale */}
@@ -365,9 +426,6 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
             </ResponsiveContainer>
           </div>
 
-          {/* Mini Calendar */}
-          <MiniCalendar purchases={filteredPurchases} />
-
           {/* Bar Chart - Numero Acquisti per Piattaforma */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
@@ -406,54 +464,109 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
             </ResponsiveContainer>
           </div>
 
-          {/* Top 5 Acquisti */}
+          {/* Distribuzione Fasce di Prezzo */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <TrendingUp className="text-green-600 dark:text-green-400" size={24} />
-              Top 5 Acquisti
+              <Euro className="text-emerald-600 dark:text-emerald-400" size={24} />
+              Distribuzione Fasce di Prezzo
             </h3>
-            <div className="space-y-3">
-              {filteredPurchases
-                .sort((a, b) => b.price - a.price)
-                .slice(0, 5)
-                .map((purchase, index) => {
-                  const maxPrice = Math.max(...filteredPurchases.map(p => p.price));
-                  const percentage = (purchase.price / maxPrice) * 100;
-                  return (
-                    <div key={purchase.id} className="relative">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl font-bold text-gray-400 dark:text-gray-500">
-                            {index + 1}
-                          </span>
-                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate max-w-[200px]">
-                            {purchase.name}
-                          </span>
-                        </div>
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                          €{purchase.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-1000`}
-                          style={{
-                            width: `${percentage}%`,
-                            background: COLORS[purchase.platform] || '#6366f1'
-                          }}
-                        />
-                      </div>
-                      <span className={`text-xs font-medium mt-1 inline-block px-2 py-0.5 rounded ${
-                        purchase.platform === 'Amazon' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' :
-                        purchase.platform === 'AliExpress' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' :
-                        'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-                      }`}>
-                        {purchase.platform}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={priceRangeData} barSize={50}>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
+                <XAxis
+                  dataKey="range"
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  allowDecimals={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltipCount />} cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} />
+                <Bar
+                  dataKey="count"
+                  fill="#10b981"
+                  radius={[10, 10, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
+                  name="Numero Acquisti"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Frequenza Acquisti */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <Calendar className="text-cyan-600 dark:text-cyan-400" size={24} />
+              Frequenza Acquisti
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={frequencyData} barSize={40}>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
+                <XAxis
+                  dataKey="period"
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  allowDecimals={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltipCount />} cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }} />
+                <Bar
+                  dataKey="count"
+                  fill="#06b6d4"
+                  radius={[10, 10, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
+                  name="Numero Acquisti"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Acquisti per Giorno Settimana */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <Calendar className="text-pink-600 dark:text-pink-400" size={24} />
+              Acquisti per Giorno della Settimana
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dayOfWeekData} barSize={45}>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
+                <XAxis
+                  dataKey="day"
+                  stroke="#9ca3af"
+                  style={{ fontSize: '10px', fontWeight: 600 }}
+                  tickLine={false}
+                  angle={-15}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  allowDecimals={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltipCount />} cursor={{ fill: 'rgba(236, 72, 153, 0.1)' }} />
+                <Bar
+                  dataKey="count"
+                  fill="#ec4899"
+                  radius={[10, 10, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
+                  name="Numero Acquisti"
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}

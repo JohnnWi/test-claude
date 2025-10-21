@@ -106,3 +106,105 @@ export const getAggregatedData = (purchases, aggregationType = 'month') => {
 export const getMonthlyData = (purchases) => {
   return getAggregatedData(purchases, 'month');
 };
+
+// Distribuzione per fasce di prezzo
+export const getPriceRangeDistribution = (purchases) => {
+  const ranges = [
+    { min: 0, max: 20, label: '0-20€' },
+    { min: 20, max: 50, label: '20-50€' },
+    { min: 50, max: 100, label: '50-100€' },
+    { min: 100, max: 200, label: '100-200€' },
+    { min: 200, max: Infinity, label: '200+€' }
+  ];
+
+  const distribution = ranges.map(range => ({
+    range: range.label,
+    count: 0,
+    total: 0
+  }));
+
+  purchases.forEach(p => {
+    const price = parseFloat(p.price);
+    const rangeIndex = ranges.findIndex(r => price >= r.min && price < r.max);
+    if (rangeIndex !== -1) {
+      distribution[rangeIndex].count += 1;
+      distribution[rangeIndex].total += price;
+    }
+  });
+
+  return distribution.map(d => ({
+    ...d,
+    total: parseFloat(d.total.toFixed(2))
+  }));
+};
+
+// Frequenza acquisti nel tempo
+export const getPurchaseFrequency = (purchases, aggregationType = 'month') => {
+  const aggregatedData = {};
+  const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+
+  purchases.forEach(p => {
+    const date = parseISO(p.date);
+    let key, label;
+
+    if (aggregationType === 'week') {
+      const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
+      const endOfWeekDate = new Date(startOfWeekDate);
+      endOfWeekDate.setDate(endOfWeekDate.getDate() + 6);
+      const weekInYear = format(date, 'w');
+      key = `${date.getFullYear()}-W${weekInYear.padStart(2, '0')}`;
+      const monthName = monthNames[startOfWeekDate.getMonth()];
+      const startDay = startOfWeekDate.getDate();
+      const endDay = endOfWeekDate.getDate();
+      const year = startOfWeekDate.getFullYear();
+      label = `${startDay}-${endDay} ${monthName} ${year}`;
+    } else if (aggregationType === 'month') {
+      const year = date.getFullYear();
+      const monthIndex = date.getMonth();
+      key = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+      label = `${monthNames[monthIndex]} ${year}`;
+    } else if (aggregationType === 'year') {
+      key = `${date.getFullYear()}`;
+      label = `${date.getFullYear()}`;
+    } else {
+      key = 'total';
+      label = 'Totale';
+    }
+
+    if (!aggregatedData[key]) {
+      aggregatedData[key] = {
+        sortKey: key,
+        label: label,
+        count: 0
+      };
+    }
+    aggregatedData[key].count += 1;
+  });
+
+  return Object.values(aggregatedData)
+    .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+    .map(({ label, count }) => ({
+      period: label,
+      count: count
+    }));
+};
+
+// Acquisti per giorno della settimana
+export const getPurchasesByDayOfWeek = (purchases) => {
+  const daysOfWeek = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  const byDay = daysOfWeek.map(day => ({ day, count: 0, total: 0 }));
+
+  purchases.forEach(p => {
+    const date = parseISO(p.date);
+    const dayIndex = date.getDay();
+    // Converti da domenica=0 a lunedì=0 (formato italiano)
+    const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+    byDay[adjustedDayIndex].count += 1;
+    byDay[adjustedDayIndex].total += parseFloat(p.price);
+  });
+
+  return byDay.map(d => ({
+    ...d,
+    total: parseFloat(d.total.toFixed(2))
+  }));
+};
