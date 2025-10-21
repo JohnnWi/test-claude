@@ -4,14 +4,25 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameM
 import { it } from 'date-fns/locale';
 
 const PLATFORM_COLORS = {
-  Amazon: { bg: 'bg-orange-500', border: 'border-orange-500', ring: 'ring-orange-400' },
-  AliExpress: { bg: 'bg-red-500', border: 'border-red-500', ring: 'ring-red-400' },
-  Altro: { bg: 'bg-purple-500', border: 'border-purple-500', ring: 'ring-purple-400' }
+  Amazon: {
+    bg: 'from-orange-400 to-orange-600',
+    shadow: 'shadow-orange-300',
+    text: 'text-orange-700'
+  },
+  AliExpress: {
+    bg: 'from-red-400 to-red-600',
+    shadow: 'shadow-red-300',
+    text: 'text-red-700'
+  },
+  Altro: {
+    bg: 'from-purple-400 to-purple-600',
+    shadow: 'shadow-purple-300',
+    text: 'text-purple-700'
+  }
 };
 
 export default function MiniCalendar({ purchases }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(null);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -29,24 +40,12 @@ export default function MiniCalendar({ purchases }) {
     );
   };
 
-  // Ottieni tutti gli acquisti del giorno selezionato
-  const selectedDayPurchases = selectedDay ? getPurchasesForDay(selectedDay) : [];
-
   const handlePreviousMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
-    setSelectedDay(null);
   };
 
   const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
-    setSelectedDay(null);
-  };
-
-  const handleDayClick = (day) => {
-    const dayPurchases = getPurchasesForDay(day);
-    if (dayPurchases.length > 0) {
-      setSelectedDay(isSameDay(day, selectedDay || new Date('1900-01-01')) ? null : day);
-    }
   };
 
   return (
@@ -99,7 +98,6 @@ export default function MiniCalendar({ purchases }) {
         {daysInMonth.map((day) => {
           const dayPurchases = getPurchasesForDay(day);
           const hasPurchases = dayPurchases.length > 0;
-          const isSelected = selectedDay && isSameDay(day, selectedDay);
 
           // Raggruppa per piattaforma
           const platformCounts = dayPurchases.reduce((acc, p) => {
@@ -111,36 +109,37 @@ export default function MiniCalendar({ purchases }) {
           const dominantPlatform = Object.entries(platformCounts)
             .sort((a, b) => b[1] - a[1])[0]?.[0];
 
-          return (
-            <button
-              key={day.toISOString()}
-              onClick={() => handleDayClick(day)}
-              disabled={!hasPurchases}
-              className={`
-                aspect-square flex items-center justify-center rounded-full text-xs transition-all relative
-                ${hasPurchases
-                  ? `cursor-pointer hover:scale-110 font-bold border-2 ${PLATFORM_COLORS[dominantPlatform]?.border}`
-                  : 'cursor-default text-gray-400 border-2 border-transparent'}
-                ${isSelected
-                  ? `${PLATFORM_COLORS[dominantPlatform]?.bg} text-white scale-110 shadow-lg ring-2 ${PLATFORM_COLORS[dominantPlatform]?.ring}`
-                  : hasPurchases
-                    ? 'bg-gray-50 hover:bg-gray-100'
-                    : ''}
-              `}
-            >
-              <span className={`${isSelected ? 'text-white font-bold' : hasPurchases ? 'text-gray-800' : 'text-gray-400'}`}>
-                {format(day, 'd')}
-              </span>
+          const colors = PLATFORM_COLORS[dominantPlatform];
 
-              {/* Badge con numero acquisti */}
-              {hasPurchases && dayPurchases.length > 1 && (
-                <span className={`absolute -top-0.5 -right-0.5 text-[8px] font-bold px-1 min-w-[14px] text-center rounded-full ${
-                  isSelected ? 'bg-white text-gray-800' : 'bg-blue-600 text-white'
-                }`}>
-                  {dayPurchases.length}
+          return (
+            <div
+              key={day.toISOString()}
+              className="aspect-square flex items-center justify-center relative"
+            >
+              {hasPurchases ? (
+                <div className={`
+                  w-full h-full rounded-full flex items-center justify-center
+                  bg-gradient-to-br ${colors?.bg}
+                  shadow-lg ${colors?.shadow}
+                  transform transition-transform hover:scale-105
+                `}>
+                  <span className="text-xs font-bold text-white drop-shadow-sm">
+                    {format(day, 'd')}
+                  </span>
+
+                  {/* Badge con numero acquisti */}
+                  {dayPurchases.length > 1 && (
+                    <span className="absolute -top-1 -right-1 bg-white text-gray-800 text-[9px] font-bold px-1.5 min-w-[16px] text-center rounded-full shadow-md border border-gray-200">
+                      {dayPurchases.length}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-xs text-gray-400">
+                  {format(day, 'd')}
                 </span>
               )}
-            </button>
+            </div>
           );
         })}
       </div>

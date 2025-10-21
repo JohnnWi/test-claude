@@ -1,4 +1,4 @@
-import { startOfWeek, startOfMonth, startOfYear, isAfter, isBefore, parseISO } from 'date-fns';
+import { startOfWeek, startOfMonth, startOfYear, isAfter, isBefore, parseISO, format } from 'date-fns';
 
 export const filterPurchasesByPeriod = (purchases, period) => {
   const now = new Date();
@@ -40,31 +40,57 @@ export const calculateByPlatform = (purchases) => {
   return byPlatform;
 };
 
-export const getMonthlyData = (purchases) => {
-  const monthlyData = {};
+// Funzione generica per aggregare dati
+export const getAggregatedData = (purchases, aggregationType = 'month') => {
+  const aggregatedData = {};
   const monthNames = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
   purchases.forEach(p => {
     const date = parseISO(p.date);
-    const year = date.getFullYear();
-    const monthIndex = date.getMonth();
-    const monthKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
-    const monthLabel = `${monthNames[monthIndex]} ${year}`;
+    let key, label;
 
-    if (!monthlyData[monthKey]) {
-      monthlyData[monthKey] = {
-        sortKey: monthKey,
-        month: monthLabel,
+    if (aggregationType === 'week') {
+      // Settimana: formato "W1 2025", "W2 2025"
+      const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
+      const weekNumber = Math.ceil((date.getDate() - startOfWeekDate.getDate()) / 7) + 1;
+      const weekInYear = format(date, 'w');
+      key = `${date.getFullYear()}-W${weekInYear.padStart(2, '0')}`;
+      label = `Sett ${weekInYear} ${date.getFullYear()}`;
+    } else if (aggregationType === 'month') {
+      // Mese: formato "Gen 2025"
+      const year = date.getFullYear();
+      const monthIndex = date.getMonth();
+      key = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+      label = `${monthNames[monthIndex]} ${year}`;
+    } else if (aggregationType === 'year') {
+      // Anno: formato "2025"
+      key = `${date.getFullYear()}`;
+      label = `${date.getFullYear()}`;
+    } else {
+      // All: raggruppa tutto
+      key = 'total';
+      label = 'Totale';
+    }
+
+    if (!aggregatedData[key]) {
+      aggregatedData[key] = {
+        sortKey: key,
+        label: label,
         total: 0
       };
     }
-    monthlyData[monthKey].total += parseFloat(p.price);
+    aggregatedData[key].total += parseFloat(p.price);
   });
 
-  return Object.values(monthlyData)
+  return Object.values(aggregatedData)
     .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
-    .map(({ month, total }) => ({
-      month,
+    .map(({ label, total }) => ({
+      month: label,  // Manteniamo il nome "month" per compatibilità con il grafico
       total: parseFloat(total.toFixed(2))
     }));
+};
+
+// Retrocompatibilità
+export const getMonthlyData = (purchases) => {
+  return getAggregatedData(purchases, 'month');
 };

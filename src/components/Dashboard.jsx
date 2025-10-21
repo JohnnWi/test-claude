@@ -5,7 +5,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { TrendingUp, ShoppingBag, Euro, Calendar, Plus, Filter } from 'lucide-react';
-import { calculateTotal, calculateByPlatform, getMonthlyData, filterPurchasesByPeriod } from '../utils/calculations';
+import { calculateTotal, calculateByPlatform, getMonthlyData, getAggregatedData, filterPurchasesByPeriod } from '../utils/calculations';
 import MiniCalendar from './MiniCalendar';
 
 const COLORS = {
@@ -71,12 +71,13 @@ const CustomPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, n
 
 export default function Dashboard({ purchases, onOpenAddModal }) {
   const [period, setPeriod] = useState('all');
+  const [trendPeriod, setTrendPeriod] = useState('month'); // Filtro per grafico trend
 
   const filteredPurchases = period === 'all' ? purchases : filterPurchasesByPeriod(purchases, period);
 
   const total = calculateTotal(filteredPurchases);
   const byPlatform = calculateByPlatform(filteredPurchases);
-  const monthlyData = getMonthlyData(filteredPurchases);
+  const trendData = getAggregatedData(filteredPurchases, trendPeriod);
 
   const platformData = Object.entries(byPlatform).map(([platform, data]) => ({
     name: platform,
@@ -258,38 +259,64 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trend temporale */}
           <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <TrendingUp className="text-blue-600" size={24} />
-              Andamento Spese
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <TrendingUp className="text-blue-600" size={24} />
+                Andamento Spese
+              </h3>
+              <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                {[
+                  { value: 'week', label: 'Sett' },
+                  { value: 'month', label: 'Mese' },
+                  { value: 'year', label: 'Anno' },
+                  { value: 'all', label: 'Tutto' }
+                ].map((p) => (
+                  <button
+                    key={p.value}
+                    onClick={() => setTrendPeriod(p.value)}
+                    className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                      trendPeriod === p.value
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={monthlyData}>
+              <AreaChart data={trendData}>
                 <defs>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                  <linearGradient id="colorTotalGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.9}/>
+                    <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.5}/>
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
                 <XAxis
                   dataKey="month"
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  tickLine={false}
                 />
                 <YAxis
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
+                  stroke="#9ca3af"
+                  style={{ fontSize: '11px', fontWeight: 600 }}
+                  tickLine={false}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#8b5cf6', strokeWidth: 2, strokeDasharray: '5 5' }} />
                 <Area
                   type="monotone"
                   dataKey="total"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
+                  stroke="url(#colorTotalGradient)"
+                  strokeWidth={4}
                   fillOpacity={1}
-                  fill="url(#colorTotal)"
+                  fill="url(#colorTotalGradient)"
                   name="Spesa"
-                  animationDuration={1000}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -309,18 +336,20 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                   cy="50%"
                   labelLine={false}
                   label={CustomPieLabel}
-                  outerRadius={100}
-                  innerRadius={60}
+                  outerRadius={105}
+                  innerRadius={65}
                   fill="#8884d8"
                   dataKey="value"
-                  animationDuration={1000}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
+                  paddingAngle={3}
                 >
                   {platformData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.fill}
                       stroke="#fff"
-                      strokeWidth={2}
+                      strokeWidth={3}
                     />
                   ))}
                 </Pie>
@@ -328,6 +357,8 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
                 <Legend
                   verticalAlign="bottom"
                   height={36}
+                  iconType="circle"
+                  wrapperStyle={{ fontWeight: 600, fontSize: '13px' }}
                   formatter={(value, entry) => `${value} (€${entry.payload.value})`}
                 />
               </PieChart>
@@ -344,24 +375,27 @@ export default function Dashboard({ purchases, onOpenAddModal }) {
               Acquisti per Piattaforma
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={platformData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <BarChart data={platformData} barSize={60}>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" opacity={0.5} />
                 <XAxis
                   dataKey="name"
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
+                  stroke="#9ca3af"
+                  style={{ fontSize: '12px', fontWeight: 600 }}
+                  tickLine={false}
                 />
                 <YAxis
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
+                  stroke="#9ca3af"
+                  style={{ fontSize: '12px', fontWeight: 600 }}
                   allowDecimals={false}
+                  tickLine={false}
                 />
-                <Tooltip content={<CustomTooltipCount />} />
+                <Tooltip content={<CustomTooltipCount />} cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }} />
                 <Bar
                   dataKey="count"
                   fill="#8b5cf6"
-                  radius={[8, 8, 0, 0]}
-                  animationDuration={1000}
+                  radius={[10, 10, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-in-out"
                   name="Numero Acquisti"
                 >
                   {platformData.map((entry, index) => (

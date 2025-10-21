@@ -69,32 +69,38 @@ export default function AddPurchaseModal({ isOpen, onClose, onAddPurchase, showT
 
     setIsLoadingPreview(true);
     try {
-      // Prova a usare microlink.io per ottenere preview con screenshot
+      // Usa microlink.io per estrarre i meta tag Open Graph (come WhatsApp)
       const response = await fetch(
-        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}&screenshot=true&meta=false&embed=screenshot.url`
+        `https://api.microlink.io/?url=${encodeURIComponent(formData.link)}`
       );
       const data = await response.json();
 
-      console.log('Microlink response:', data);
+      console.log('Microlink Open Graph data:', data);
 
-      if (data.status === 'success') {
-        // Prova prima screenshot, poi image, poi logo
-        const imageUrl = data.data?.screenshot?.url ||
-                        data.data?.image?.url ||
-                        data.data?.logo?.url;
+      if (data.status === 'success' && data.data) {
+        // Estrai i meta tag Open Graph
+        const ogImage = data.data.image?.url;  // og:image
+        const ogTitle = data.data.title;        // og:title
+        const ogDescription = data.data.description; // og:description
 
-        if (imageUrl) {
-          setFormData(prev => ({ ...prev, imageUrl }));
-          showToast('Immagine caricata!', 'success');
+        if (ogImage) {
+          // Aggiorna form con immagine Open Graph
+          setFormData(prev => ({
+            ...prev,
+            imageUrl: ogImage,
+            // Se il nome è vuoto, usa il titolo OG
+            name: prev.name || ogTitle || prev.name
+          }));
+          showToast('✓ Immagine caricata da Open Graph!', 'success');
         } else {
-          showToast('Nessuna immagine trovata. Inseriscila manualmente copiando l\'URL dell\'immagine del prodotto.', 'info');
+          showToast('Nessuna immagine Open Graph trovata. Copia l\'URL dell\'immagine manualmente.', 'info');
         }
       } else {
-        showToast('Impossibile caricare l\'immagine automaticamente. Inseriscila manualmente.', 'info');
+        showToast('Impossibile estrarre dati dalla pagina. Inserisci l\'immagine manualmente.', 'info');
       }
     } catch (error) {
-      console.error('Error fetching preview:', error);
-      showToast('Errore nel caricamento. Inserisci l\'URL dell\'immagine manualmente.', 'error');
+      console.error('Error fetching Open Graph data:', error);
+      showToast('Errore nel caricamento. Verifica il link e riprova.', 'error');
     } finally {
       setIsLoadingPreview(false);
     }
