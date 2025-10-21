@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle, Moon, Sun } from 'lucide-react';
+import { Settings as SettingsIcon, User, Trash2, Download, Upload, Save, AlertTriangle, Moon, Sun, FileText } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 export default function Settings({ purchases, setPurchases, showToast, exportData, importData }) {
   const [userSettings, setUserSettings] = useLocalStorage('userSettings', {
@@ -64,6 +66,233 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
     totalPurchases: purchases.length,
     totalSpent: purchases.reduce((sum, p) => sum + p.price, 0),
     dataSize: new Blob([JSON.stringify(purchases)]).size / 1024 // KB
+  };
+
+  const generatePDFReport = () => {
+    if (purchases.length === 0) {
+      showToast('Nessun acquisto da includere nel report!', 'warning');
+      return;
+    }
+
+    // Calcola statistiche
+    const totalSpent = purchases.reduce((sum, p) => sum + p.price, 0);
+    const avgPrice = totalSpent / purchases.length;
+    const byPlatform = purchases.reduce((acc, p) => {
+      if (!acc[p.platform]) {
+        acc[p.platform] = { count: 0, total: 0 };
+      }
+      acc[p.platform].count++;
+      acc[p.platform].total += p.price;
+      return acc;
+    }, {});
+
+    // Ordina acquisti per data (più recenti prima)
+    const sortedPurchases = [...purchases].sort((a, b) =>
+      new Date(b.date) - new Date(a.date)
+    );
+
+    // Crea HTML per la stampa
+    const printWindow = window.open('', '_blank');
+    const reportDate = format(new Date(), 'dd MMMM yyyy', { locale: it });
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Report Acquisti - ${reportDate}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Arial', sans-serif;
+            padding: 40px;
+            line-height: 1.6;
+            color: #333;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 20px;
+          }
+          .header h1 {
+            color: #4F46E5;
+            font-size: 32px;
+            margin-bottom: 10px;
+          }
+          .header p {
+            color: #666;
+            font-size: 14px;
+          }
+          .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+          }
+          .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+          }
+          .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+          }
+          .stat-card p {
+            font-size: 28px;
+            font-weight: bold;
+          }
+          .platform-stats {
+            margin-bottom: 40px;
+          }
+          .platform-stats h2 {
+            color: #4F46E5;
+            margin-bottom: 20px;
+            font-size: 24px;
+          }
+          .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+          }
+          .platform-card {
+            border: 2px solid #E5E7EB;
+            padding: 15px;
+            border-radius: 8px;
+          }
+          .platform-card h4 {
+            color: #1F2937;
+            margin-bottom: 10px;
+          }
+          .purchases-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          .purchases-table th {
+            background: #4F46E5;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+          }
+          .purchases-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #E5E7EB;
+          }
+          .purchases-table tr:nth-child(even) {
+            background: #F9FAFB;
+          }
+          .platform-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+          .amazon { background: #FF9900; color: white; }
+          .aliexpress { background: #E62E04; color: white; }
+          .altro { background: #6366f1; color: white; }
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E7EB;
+          }
+          @media print {
+            body { padding: 20px; }
+            .stat-card { break-inside: avoid; }
+            .platform-card { break-inside: avoid; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>💰 Report Acquisti Online</h1>
+          <p>Generato il ${reportDate}</p>
+          ${formData.firstName ? `<p>Intestato a: ${formData.firstName} ${formData.lastName}</p>` : ''}
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Acquisti Totali</h3>
+            <p>${purchases.length}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Spesa Totale</h3>
+            <p>€${totalSpent.toFixed(2)}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Spesa Media</h3>
+            <p>€${avgPrice.toFixed(2)}</p>
+          </div>
+        </div>
+
+        <div class="platform-stats">
+          <h2>📊 Statistiche per Piattaforma</h2>
+          <div class="platform-grid">
+            ${Object.entries(byPlatform).map(([platform, data]) => `
+              <div class="platform-card">
+                <h4>${platform}</h4>
+                <p><strong>Acquisti:</strong> ${data.count}</p>
+                <p><strong>Totale:</strong> €${data.total.toFixed(2)}</p>
+                <p><strong>Media:</strong> €${(data.total / data.count).toFixed(2)}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <h2 style="color: #4F46E5; margin-bottom: 20px; font-size: 24px;">🛍️ Elenco Acquisti</h2>
+        <table class="purchases-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Prodotto</th>
+              <th>Piattaforma</th>
+              <th>Prezzo</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sortedPurchases.map(p => `
+              <tr>
+                <td>${format(parseISO(p.date), 'dd/MM/yyyy', { locale: it })}</td>
+                <td><strong>${p.name}</strong></td>
+                <td>
+                  <span class="platform-badge ${p.platform.toLowerCase().replace(/\s+/g, '')}">${p.platform}</span>
+                </td>
+                <td><strong>€${p.price.toFixed(2)}</strong></td>
+                <td>${p.notes || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          <p>Report generato da Tracker Spese Online</p>
+          <p>Tutti i dati sono gestiti localmente nel tuo browser</p>
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    showToast('Report PDF generato! Usa "Salva come PDF" nella finestra di stampa.', 'success');
   };
 
   return (
@@ -200,14 +429,23 @@ export default function Settings({ purchases, setPurchases, showToast, exportDat
       <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100">
         <h3 className="text-xl font-bold text-gray-800 mb-4">Gestione Dati</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <button
+            onClick={generatePDFReport}
+            disabled={purchases.length === 0}
+            className="bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+          >
+            <FileText size={20} />
+            Report PDF
+          </button>
+
           <button
             onClick={exportData}
             disabled={purchases.length === 0}
             className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
           >
             <Download size={20} />
-            Esporta Dati
+            Esporta JSON
           </button>
 
           <label className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all flex items-center justify-center gap-2 font-medium cursor-pointer shadow-md">
